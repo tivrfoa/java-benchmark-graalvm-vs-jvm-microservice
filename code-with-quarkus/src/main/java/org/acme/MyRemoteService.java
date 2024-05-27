@@ -1,5 +1,7 @@
 package org.acme;
 
+import java.util.List;
+
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import jakarta.ws.rs.GET;
@@ -14,10 +16,10 @@ public interface MyRemoteService {
     @GET
     @Path("/address/{client_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    String getAddress(@PathParam("client_id") int clientID);
+    Address getAddress(@PathParam("client_id") int clientID);
 
     @GET
     @Path("/phones/{client_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    String getPhones(@PathParam("client_id") int clientID);
+    List<Phone> getPhones(@PathParam("client_id") int clientID);
 }

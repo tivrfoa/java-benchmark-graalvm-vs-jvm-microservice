@@ -29,4 +29,10 @@ public class Address {
     public String getCountry() {
         return country;
     }
+
+    @Override
+    public String toString() {
+        return "Address [street=" + street + ", number=" + number + ", state=" + state + ", country=" + country + "]";
+    }
+
 }

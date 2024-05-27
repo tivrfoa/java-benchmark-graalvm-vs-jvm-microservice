@@ -35,5 +35,9 @@ public class Client {
     public void setPhone(Phone phone) {
         this.phone = phone;
     }
+    @Override
+    public String toString() {
+        return "Client [name=" + name + ", age=" + age + ", address=" + address + ", phone=" + phone + "]";
+    }
 
 }

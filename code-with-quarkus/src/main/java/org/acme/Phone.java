@@ -17,4 +17,10 @@ public class Phone {
     public int getNumber() {
         return number;
     }
+
+    @Override
+    public String toString() {
+        return "Phone [ddd=" + ddd + ", number=" + number + "]";
+    }
+    
 }
