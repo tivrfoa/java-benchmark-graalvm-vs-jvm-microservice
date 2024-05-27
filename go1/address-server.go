@@ -27,6 +27,7 @@ var address = Address{
 
 // Function to handle GET requests for the address
 func getAddressHandler(w http.ResponseWriter, r *http.Request) {
+    // clientID := r.PathValue("client_id")
     // Set content type as JSON
     w.Header().Set("Content-Type", "application/json")
 
@@ -70,6 +71,8 @@ var phones = [...]Phone{
 
 // Function to handle GET requests for the list of telephones
 func getPhonesHandler(w http.ResponseWriter, r *http.Request) {
+    // clientID := r.PathValue("client_id")
+    // fmt.Printf("Handling client id: %s\n", clientID)
     // Set content type as JSON
     w.Header().Set("Content-Type", "application/json")
 
@@ -86,8 +89,8 @@ func getPhonesHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     // Register the handler for the GET request
-    http.HandleFunc("/address", getAddressHandler)
-    http.HandleFunc("/phones", getPhonesHandler)
+    http.HandleFunc("/address/{client_id}", getAddressHandler)
+    http.HandleFunc("/phones/{client_id}", getPhonesHandler)
 
     // Start the server on port 8080
     fmt.Println("Server listening on port 8080")

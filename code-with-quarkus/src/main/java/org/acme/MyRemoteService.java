@@ -4,6 +4,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
@@ -11,12 +12,12 @@ import jakarta.ws.rs.core.MediaType;
 public interface MyRemoteService {
 
     @GET
-    @Path("/address")
+    @Path("/address/{client_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    String getAddress();
+    String getAddress(@PathParam("client_id") int clientID);
 
     @GET
-    @Path("/phones")
+    @Path("/phones/{client_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    String getPhones();
+    String getPhones(@PathParam("client_id") int clientID);
 }
