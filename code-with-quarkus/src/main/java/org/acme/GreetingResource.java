@@ -1,5 +1,7 @@
 package org.acme;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -9,22 +11,25 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/hello")
 public class GreetingResource {
+    private static final List<LoanOption> NO_LOAN_OPTIONS_AVAILABLE = List.of();
+
     private static AtomicInteger counter = new AtomicInteger(0);
 
     private static Client[] clients = new Client[] {
-        new Client("A", 18),
-        new Client("B", 19),
-        new Client("C", 20),
-        new Client("D", 21),
-        new Client("E", 22),
-        new Client("F", 23),
-        new Client("G", 24),
-        new Client("H", 25),
-        new Client("I", 26),
-        new Client("J", 27),
+        new Client("A", 18, 3000),
+        new Client("B", 19, 3500),
+        new Client("C", 20, 4000),
+        new Client("D", 21, 4500),
+        new Client("E", 22, 5000),
+        new Client("F", 23, 6000),
+        new Client("G", 24, 7000),
+        new Client("H", 25, 8000),
+        new Client("I", 26, 9000),
+        new Client("J", 27, 10000),
     };
 
     @Inject
@@ -32,22 +37,37 @@ public class GreetingResource {
     MyRemoteService myRemoteService;
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public ResponseLoanOptions getLoanOptions() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLoanOptions() {
         int client_id = counter.getAndUpdate(value -> (value + 1) % 10);
         var client = clients[client_id];
+        var phones = myRemoteService.getPhones(client_id);
+        client.setPhones(phones);
 
         if (client.getAge() >= 18) {
-
+            var address = myRemoteService.getAddress(client_id);
+            client.setAddress(address);
+            var loanOptions = calculateLoanOptions(client);
+            return Response.ok(new ResponseLoanOptions(client, loanOptions)).build();
         } else {
             // branch never taken
-            // to test speculation performance
-
+            // to test speculative performance
+            System.err.println("BUG: this should be unreachable");
+            var address = myRemoteService.getAddress(client.getGuardianID());
+            client.setAddress(address);
+            return Response.ok(new ResponseLoanOptions(client, NO_LOAN_OPTIONS_AVAILABLE)).build();
         }
+    }
 
-        System.out.println(client_id);
-        System.out.println(myRemoteService.getAddress(client_id));
-        System.out.println(myRemoteService.getPhones(client_id));
-        return new ResponseLoanOptions();
+    private List<LoanOption> calculateLoanOptions(Client client) {
+        List<LoanOption> list = new ArrayList<>();
+        for (int year = 1; year <= 3; year++) {
+            double monthlyInstallment = 0.03 * client.getMonthSalary();
+            double max = (monthlyInstallment * (12 * year));
+            double interest = 0.07 * max;
+            double loan = max - interest;
+            list.add(new LoanOption(year, loan, monthlyInstallment));
+        }
+        return list;
     }
 }

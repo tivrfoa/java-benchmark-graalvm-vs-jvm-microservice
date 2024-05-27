@@ -2,6 +2,9 @@ package org.acme;
 
 import java.util.List;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
+@RegisterForReflection
 public class ResponseLoanOptions {
 
     private Client client;
@@ -17,6 +20,10 @@ public class ResponseLoanOptions {
         return loanOptions;
     }
     public void setLoanOptions(List<LoanOption> loanOptions) {
+        this.loanOptions = loanOptions;
+    }
+    public ResponseLoanOptions(Client client, List<LoanOption> loanOptions) {
+        this.client = client;
         this.loanOptions = loanOptions;
     }
     
