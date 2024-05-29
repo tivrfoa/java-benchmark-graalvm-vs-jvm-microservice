@@ -1,0 +1,126 @@
+
+
+## Native
+
+```txt
+root@lesco-Lenovo-IdeaPad-S145-15API:/home/lesco/dev/benchmark-microservice1/code-with-quarkus# perf stat -a ./target/code-with-quarkus-1.0.0-SNAPSHOT-runner
+__  ____  __  _____   ___  __ ____  ______
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
+ -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
+--\___\_\____/_/ |_/_/|_/_/|_|\____/___/
+2024-05-29 08:37:31,080 INFO  [io.quarkus] (main) code-with-quarkus 1.0.0-SNAPSHOT native (powered by Quarkus 3.10.2) started in 0.076s. Listening on: http://0.0.0.0:8081
+2024-05-29 08:37:31,081 INFO  [io.quarkus] (main) Profile prod activated.
+2024-05-29 08:37:31,081 INFO  [io.quarkus] (main) Installed features: [cdi, rest, rest-client, rest-client-jackson, rest-jackson, smallrye-context-propagation, vertx]
+^C2024-05-29 08:40:52,719 INFO  [io.quarkus] (Shutdown thread) code-with-quarkus stopped in 0.009s
+
+ Performance counter stats for 'system wide':
+
+      1.614.430,45 msec cpu-clock                        #    8,000 CPUs utilized
+         8.205.230      context-switches                 #    5,082 K/sec
+           759.148      cpu-migrations                   #  470,227 /sec
+           603.966      page-faults                      #  374,105 /sec
+ 1.661.657.756.001      cycles                           #    1,029 GHz                         (83,33%)
+   556.299.263.343      stalled-cycles-frontend          #   33,48% frontend cycles idle        (83,33%)
+   124.644.045.893      stalled-cycles-backend           #    7,50% backend cycles idle         (83,33%)
+   579.436.517.564      instructions                     #    0,35  insn per cycle
+                                                  #    0,96  stalled cycles per insn     (83,33%)
+   129.754.021.310      branches                         #   80,371 M/sec                       (83,33%)
+     8.293.039.468      branch-misses                    #    6,39% of all branches             (83,33%)
+
+     201,803348410 seconds time elapsed
+```
+
+### k6 benchmark result
+
+```txt
+     scenarios: (100.00%) 1 scenario, 4 max VUs, 2m0s max duration (incl. graceful stop):
+              * default: Up to 4 looping VUs for 1m30s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+       ✓ status code should be 200
+
+     checks.........................: 100.00% ✓ 134163      ✗ 0
+     data_received..................: 132 MB  1.5 MB/s
+     data_sent......................: 11 MB   127 kB/s
+     group_duration.................: avg=1.5ms   min=939.63µs med=1.41ms  max=40.22ms  p(90)=1.7ms   p(95)=1.97ms
+     http_req_blocked...............: avg=8.64µs  min=4.4µs    med=8.1µs   max=1.72ms   p(90)=10.12µs p(95)=10.89µs
+     http_req_connecting............: avg=6ns     min=0s       med=0s      max=249.12µs p(90)=0s      p(95)=0s
+     http_req_duration..............: avg=1.36ms  min=839.13µs med=1.27ms  max=31.88ms  p(90)=1.54ms  p(95)=1.8ms
+       { expected_response:true }...: avg=1.36ms  min=839.13µs med=1.27ms  max=31.88ms  p(90)=1.54ms  p(95)=1.8ms
+     http_req_failed................: 0.00%   ✓ 0           ✗ 134163
+     http_req_receiving.............: avg=64.74µs min=26.81µs  med=62.36µs max=1.48ms   p(90)=78.92µs p(95)=88.27µs
+     http_req_sending...............: avg=21.8µs  min=7.54µs   med=20.6µs  max=716.28µs p(90)=26.61µs p(95)=29.19µs
+     http_req_tls_handshaking.......: avg=0s      min=0s       med=0s      max=0s       p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=1.28ms  min=769.99µs med=1.19ms  max=31.62ms  p(90)=1.44ms  p(95)=1.69ms
+     http_reqs......................: 134163  1490.681975/s
+     iteration_duration.............: avg=1.53ms  min=969.17µs med=1.44ms  max=40.37ms  p(90)=1.73ms  p(95)=2.01ms
+     iterations.....................: 134163  1490.681975/s
+     vus............................: 1       min=1         max=4
+     vus_max........................: 4       min=4         max=4
+
+
+running (1m30.0s), 0/4 VUs, 134163 complete and 0 interrupted iterations
+default ✓ [======================================] 0/4 VUs  1m30s
+```
+
+## JVM
+
+```txt
+root@lesco-Lenovo-IdeaPad-S145-15API:/home/lesco/dev/benchmark-microservice1/code-with-quarkus# perf stat -a /home/lesco/Softwares/graalvm-jdk-21_linux-x64_bin/graalvm-jdk-21.0.1+12.1/bin/java -jar target/quarkus-app/quarkus-run.jar
+__  ____  __  _____   ___  __ ____  ______
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
+ -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
+--\___\_\____/_/ |_/_/|_/_/|_|\____/___/
+2024-05-29 08:44:15,763 INFO  [io.quarkus] (main) code-with-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 3.10.2) started in 1.640s. Listening on: http://0.0.0.0:8081
+2024-05-29 08:44:15,767 INFO  [io.quarkus] (main) Profile prod activated.
+2024-05-29 08:44:15,768 INFO  [io.quarkus] (main) Installed features: [cdi, rest, rest-client, rest-client-jackson, rest-jackson, smallrye-context-propagation, vertx]
+^C2024-05-29 08:45:59,190 INFO  [io.quarkus] (main) code-with-quarkus stopped in 0.074s
+
+ Performance counter stats for 'system wide':
+
+        843.330,36 msec cpu-clock                        #    8,000 CPUs utilized
+         5.735.346      context-switches                 #    6,801 K/sec
+           676.026      cpu-migrations                   #  801,615 /sec
+           332.248      page-faults                      #  393,971 /sec
+ 1.396.189.380.176      cycles                           #    1,656 GHz                         (83,33%)
+   460.967.451.968      stalled-cycles-frontend          #   33,02% frontend cycles idle        (83,33%)
+    79.466.686.729      stalled-cycles-backend           #    5,69% backend cycles idle         (83,34%)
+   441.575.469.047      instructions                     #    0,32  insn per cycle
+                                                  #    1,04  stalled cycles per insn     (83,33%)
+    98.387.092.557      branches                         #  116,665 M/sec                       (83,34%)
+     5.693.829.032      branch-misses                    #    5,79% of all branches             (83,34%)
+
+     105,416088205 seconds time elapsed
+```
+
+### k6 benchmark result
+
+```txt
+$ k6 run k6_bench1.js
+     scenarios: (100.00%) 1 scenario, 4 max VUs, 2m0s max duration (incl. graceful stop):
+              * default: Up to 4 looping VUs for 1m30s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+       ✓ status code should be 200
+
+     checks.........................: 100.00% ✓ 91304       ✗ 0
+     data_received..................: 90 MB   1.0 MB/s
+     data_sent......................: 7.8 MB  86 kB/s
+     group_duration.................: avg=2.21ms   min=1.22ms   med=2.04ms   max=496.91ms p(90)=2.88ms   p(95)=3.36ms
+     http_req_blocked...............: avg=11.91µs  min=5.16µs   med=11.1µs   max=665.65µs p(90)=14.24µs  p(95)=16.62µs
+     http_req_connecting............: avg=13ns     min=0s       med=0s       max=375.81µs p(90)=0s       p(95)=0s
+     http_req_duration..............: avg=1.99ms   min=1.07ms   med=1.82ms   max=496.07ms p(90)=2.63ms   p(95)=3.09ms
+       { expected_response:true }...: avg=1.99ms   min=1.07ms   med=1.82ms   max=496.07ms p(90)=2.63ms   p(95)=3.09ms
+     http_req_failed................: 0.00%   ✓ 0           ✗ 91304
+     http_req_receiving.............: avg=104.13µs min=34.85µs  med=101.68µs max=1.49ms   p(90)=132.69µs p(95)=148.69µs
+     http_req_sending...............: avg=32.5µs   min=12.78µs  med=30.93µs  max=1.39ms   p(90)=38.62µs  p(95)=42.32µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s       p(90)=0s       p(95)=0s
+     http_req_waiting...............: avg=1.86ms   min=971.14µs med=1.68ms   max=495.83ms p(90)=2.48ms   p(95)=2.94ms
+     http_reqs......................: 91304   1014.479549/s
+     iteration_duration.............: avg=2.25ms   min=1.25ms   med=2.07ms   max=497.11ms p(90)=2.93ms   p(95)=3.4ms
+     iterations.....................: 91304   1014.479549/s
+     vus............................: 1       min=1         max=4
+     vus_max........................: 4       min=4         max=4
+
+
+running (1m30.0s), 0/4 VUs, 91304 complete and 0 interrupted iterations
+default ✓ [======================================] 0/4 VUs  1m30s
+```

@@ -1,4 +1,4 @@
-go build -o bin/ address-server.go
+go build -o bin/ client-api.go
 
-./bin/address-server
+./bin/client-api
 
