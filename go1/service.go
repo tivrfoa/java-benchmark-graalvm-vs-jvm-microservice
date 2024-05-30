@@ -91,7 +91,7 @@ var clients = []Client{
 
 func main() {
     // Register the handler for the GET request
-    http.HandleFunc("/hello", getHelloHandler)
+    http.HandleFunc("/hello", getServiceHandler)
 
     // Start the server on port 8080
     fmt.Println("Server listening on port 8081")
@@ -101,11 +101,26 @@ func main() {
     }
 }
 
-func getHelloHandler(w http.ResponseWriter, r *http.Request) {
-    // Set content type as JSON
-    w.Header().Set("Content-Type", "application/json")
+func getServiceHandler(w http.ResponseWriter, r *http.Request) {
+    clientID := getClientId()
+    client := clients[clientID]
 
-    client := CallAPI()
+    phones, err := getPhones(clientID)
+    if err != nil {
+        fmt.Println("Error fetching phones:", err)
+        return
+    }
+    client.Phones = phones
+
+    address, err := getAddress(clientID)
+    if err != nil {
+        fmt.Println("Error fetching address:", err)
+        return
+    }
+    client.Address = *address
+
+    // fmt.Println("Client information:")
+    // fmt.Println(string(clientJSON)) // Print JSON representation of client data
 
     // Marshal the Client struct to JSON
     clientJSON, err := json.Marshal(client)
@@ -114,99 +129,64 @@ func getHelloHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Write the JSON response
+    w.Header().Set("Content-Type", "application/json")
     w.Write(clientJSON)
 }
 
-func CallAPI() (*Client) {
-    // Replace these with the actual URLs of your Go server endpoints
-    addressURL := "http://localhost:8080/address"
+func getPhones(clientID uint32) ([]Phone, error) {
     phonesURL := "http://localhost:8080/phones"
-
-    // Replace this with the desired client ID
-    // TODO atomic counter % 10
-    clientID := 123
-
-    // Function to fetch address data for a client
-    getAddress := func() (*Address, error) {
-        url := fmt.Sprintf("%s/%d", addressURL, clientID)  // Format URL with client ID
-        req, err := http.NewRequest(http.MethodGet, url, nil)
-        if err != nil {
-            return nil, err
-        }
-
-        client := &http.Client{}
-        resp, err := client.Do(req)
-        if err != nil {
-            return nil, err
-        }
-        defer resp.Body.Close()
-
-        if resp.StatusCode != http.StatusOK {
-            return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-        }
-
-        var address Address
-        err = json.NewDecoder(resp.Body).Decode(&address)
-        if err != nil {
-            return nil, err
-        }
-
-        return &address, nil
-    }
-
-    // Function to fetch phone numbers for a client
-    getPhones := func() ([]Phone, error) {
-        url := fmt.Sprintf("%s/%d", phonesURL, clientID)  // Format URL with client ID
-        req, err := http.NewRequest(http.MethodGet, url, nil)
-        if err != nil {
-            return nil, err
-        }
-
-        client := &http.Client{}
-        resp, err := client.Do(req)
-        if err != nil {
-            return nil, err
-        }
-        defer resp.Body.Close()
-
-        if resp.StatusCode != http.StatusOK {
-            return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-        }
-
-        var phones []Phone
-        err = json.NewDecoder(resp.Body).Decode(&phones)
-        if err != nil {
-            return nil, err
-        }
-
-        return phones, nil
-    }
-
-    // Call functions to retrieve client information
-    address, err := getAddress()
+    url := fmt.Sprintf("%s/%d", phonesURL, clientID)  // Format URL with client ID
+    req, err := http.NewRequest(http.MethodGet, url, nil)
     if err != nil {
-        fmt.Println("Error fetching address:", err)
-        return nil
+        return nil, err
     }
 
-    phones, err := getPhones()
+    http_client := &http.Client{}
+    resp, err := http_client.Do(req)
     if err != nil {
-        fmt.Println("Error fetching phones:", err)
-        return nil
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
     }
 
-    // Create a Client struct with retrieved data
-    client := Client{
-        ID:       clientID,
-        Address:  *address,  // Dereference address pointer
-        Phones:   phones,
+    var phones []Phone
+    err = json.NewDecoder(resp.Body).Decode(&phones)
+    if err != nil {
+        return nil, err
     }
 
+    return phones, nil
+}
 
-    // fmt.Println("Client information:")
-    // fmt.Println(string(clientJSON)) // Print JSON representation of client data
-    return &client
+func getAddress(clientID uint32) (*Address, error) {
+    addressURL := "http://localhost:8080/address"
+    url := fmt.Sprintf("%s/%d", addressURL, clientID)
+    req, err := http.NewRequest(http.MethodGet, url, nil)
+    if err != nil {
+        return nil, err
+    }
+
+    http_client := &http.Client{}
+    resp, err := http_client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+    }
+
+    var address Address
+    err = json.NewDecoder(resp.Body).Decode(&address)
+    if err != nil {
+        return nil, err
+    }
+
+    return &address, nil
 }
 
 // Created by Gemini. I hope it's correct xD
