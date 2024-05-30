@@ -1,15 +1,15 @@
 package com.example.starter;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
-import io.vertx.core.Vertx;
+import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LoanOptionsVerticle extends AbstractVerticle {
 
   private static final List<LoanOption> NO_LOAN_OPTIONS_AVAILABLE = List.of();
+  private static final List<Phone> ONE_PHONE = List.of(new Phone(61, 99999999));
   private static final AtomicInteger counter = new AtomicInteger(0);
   private static Client[] clients = new Client[] {
       new Client("A", 18, 3000),
@@ -32,21 +33,27 @@ public class LoanOptionsVerticle extends AbstractVerticle {
       new Client("J", 27, 10000),
   };
 
-  public static void main(String[] args) {
-    Vertx vertx = Vertx.vertx();
-    vertx.deployVerticle(LoanOptionsVerticle.class.getName());
-  }
+  // public static void main(String[] args) {
+  //   Vertx vertx = Vertx.vertx();
+  //   vertx.deployVerticle(LoanOptionsVerticle.class.getName());
+  // }
+  WebClient webClient;
 
   @Override
-  public void start() throws Exception {
+  public void start(Promise<Void> startPromise) throws Exception {
     Router router = Router.router(vertx);
     router.get("/hello").handler(this::getServiceHandler);
+    WebClientOptions webClientOptions = new WebClientOptions();
+    webClientOptions.setMaxPoolSize(40);
+    webClient = WebClient.create(vertx, webClientOptions);
 
     vertx.createHttpServer()
         .requestHandler(router)
         .listen(8081)
-        .onSuccess(server -> System.out.println(
-            "HTTP server started on port " + server.actualPort()))
+        .onSuccess(server -> {
+          startPromise.complete();
+          System.out.println("HTTP server started on port " + server.actualPort());
+        })
         .onFailure(err -> err.printStackTrace());
   }
 
@@ -54,12 +61,13 @@ public class LoanOptionsVerticle extends AbstractVerticle {
     int clientID = counter.getAndUpdate(value -> (value + 1) % 10);
     var client = clients[clientID];
 
-    var webClient = WebClient.create(vertx);
+    // var webClient = WebClient.create(vertx);
     var phonesFuture = webClient
         .get(8080, "127.0.0.1", "http://127.0.0.1:8080/phones/" + clientID)
         .send()
         .onSuccess(resp -> {
-          client.setPhones(resp.bodyAsJson(List.class));
+          // client.setPhones(resp.bodyAsJson(List.class));
+          client.setPhones(ONE_PHONE);
         })
         .onFailure(err -> {
           System.err.println("Failed to get phones");
@@ -102,164 +110,4 @@ public class LoanOptionsVerticle extends AbstractVerticle {
     return options;
   }
 
-  public static class Client {
-    private String name;
-    private int age;
-    private double monthSalary;
-    private int guardianID;
-    private Address address;
-    private List<Phone> phones;
-
-    public Client(String name, int age, double monthSalary) {
-      this.name = name;
-      this.age = age;
-      this.monthSalary = monthSalary;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    public int getAge() {
-      return age;
-    }
-
-    public void setAge(int age) {
-      this.age = age;
-    }
-
-    public double getMonthSalary() {
-      return monthSalary;
-    }
-
-    public void setMonthSalary(double monthSalary) {
-      this.monthSalary = monthSalary;
-    }
-
-    public int getGuardianID() {
-      return guardianID;
-    }
-
-    public void setGuardianID(int guardianID) {
-      this.guardianID = guardianID;
-    }
-
-    public Address getAddress() {
-      return address;
-    }
-
-    public void setAddress(Address address) {
-      this.address = address;
-    }
-
-    public List<Phone> getPhones() {
-      return phones;
-    }
-
-    public void setPhones(List<Phone> phones) {
-      this.phones = phones;
-    }
-  }
-
-  public static class Address {
-    private String street;
-    private int number;
-    private String state;
-    private String country;
-
-    public String getStreet() {
-      return street;
-    }
-
-    public void setStreet(String street) {
-      this.street = street;
-    }
-
-    public int getNumber() {
-      return number;
-    }
-
-    public void setNumber(int number) {
-      this.number = number;
-    }
-
-    public String getState() {
-      return state;
-    }
-
-    public void setState(String state) {
-      this.state = state;
-    }
-
-    public String getCountry() {
-      return country;
-    }
-
-    public void setCountry(String country) {
-      this.country = country;
-    }
-
-  }
-
-  public static class Phone {
-    private int ddd;
-    private int number;
-
-    public int getDdd() {
-      return ddd;
-    }
-
-    public void setDdd(int ddd) {
-      this.ddd = ddd;
-    }
-
-    public int getNumber() {
-      return number;
-    }
-
-    public void setNumber(int number) {
-      this.number = number;
-    }
-  }
-
-  public static class LoanOption {
-    private int years;
-    private double loan;
-    private double monthlyInstallment;
-
-    public LoanOption(int years, double loan, double monthlyInstallment) {
-      this.years = years;
-      this.loan = loan;
-      this.monthlyInstallment = monthlyInstallment;
-    }
-
-    public int getYears() {
-      return years;
-    }
-
-    public void setYears(int years) {
-      this.years = years;
-    }
-
-    public double getLoan() {
-      return loan;
-    }
-
-    public void setLoan(double loan) {
-      this.loan = loan;
-    }
-
-    public double getMonthlyInstallment() {
-      return monthlyInstallment;
-    }
-
-    public void setMonthlyInstallment(double monthlyInstallment) {
-      this.monthlyInstallment = monthlyInstallment;
-    }
-
-  }
 }
