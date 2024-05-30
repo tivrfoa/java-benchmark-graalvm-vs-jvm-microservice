@@ -13,7 +13,7 @@ import (
 
 // Define a struct to hold client information
 type Client struct {
-    ID          uint32  `json:"id"`
+    // ID          uint32  `json:"id"`
     Name        string  `json:"name"`
     Age         uint32  `json:"age"`
     GuardianID  uint32  `json:"guardianID"`
@@ -60,6 +60,19 @@ func NewLoanOption(years int, loan float64, monthlyInstallment float64) LoanOpti
     Loan:               loan,
     MonthlyInstallment: monthlyInstallment,
   }
+}
+
+
+func calculateLoanOptions(client Client) []LoanOption {
+  options := []LoanOption{}  // Empty slice to store LoanOption instances
+  for year := 1; year <= 3; year++ {
+    monthlyInstallment := 0.03 * client.MonthSalary  // Use dot notation for struct fields
+    maxLoan := monthlyInstallment * float64(12 * year)
+    interest := 0.07 * maxLoan
+    loanAmount := maxLoan - interest
+    options = append(options, NewLoanOption(year, loanAmount, monthlyInstallment))
+  }
+  return options
 }
 
 type ResponseLoanOptions struct {
@@ -113,6 +126,7 @@ func getServiceHandler(w http.ResponseWriter, r *http.Request) {
     }
     client.Phones = phones
 
+    loanOptions := NoLoanOptionsAvailable
     if client.Age >= 18 {
         address, err := getAddress(clientID)
         if err != nil {
@@ -120,7 +134,9 @@ func getServiceHandler(w http.ResponseWriter, r *http.Request) {
             return
         }
         client.Address = *address
+        loanOptions = calculateLoanOptions(client)
     } else {
+        fmt.Println("BUG: this should be unreachable")
         address, err := getAddress(client.GuardianID)
         if err != nil {
             fmt.Println("Error fetching address:", err)
@@ -129,18 +145,15 @@ func getServiceHandler(w http.ResponseWriter, r *http.Request) {
         client.Address = *address
     }
 
-    // fmt.Println("Client information:")
-    // fmt.Println(string(clientJSON)) // Print JSON representation of client data
-
-    // Marshal the Client struct to JSON
-    clientJSON, err := json.Marshal(client)
+    response := NewResponseLoanOptions(client, loanOptions)
+    jsonResponse, err := json.Marshal(response)
     if err != nil {
         fmt.Println("Error marshalling client data:", err)
         return
     }
 
     w.Header().Set("Content-Type", "application/json")
-    w.Write(clientJSON)
+    w.Write(jsonResponse)
 }
 
 func callAPI(url string) ([]byte, error) {
