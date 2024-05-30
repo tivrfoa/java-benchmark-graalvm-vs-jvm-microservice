@@ -6,6 +6,7 @@ package main
 import (
     "encoding/json"
     "fmt"
+    "io"
     "net/http"
     "sync/atomic"
 )
@@ -133,9 +134,7 @@ func getServiceHandler(w http.ResponseWriter, r *http.Request) {
     w.Write(clientJSON)
 }
 
-func getPhones(clientID uint32) ([]Phone, error) {
-    phonesURL := "http://localhost:8080/phones"
-    url := fmt.Sprintf("%s/%d", phonesURL, clientID)  // Format URL with client ID
+func callAPI(url string) ([]byte, error) {
     req, err := http.NewRequest(http.MethodGet, url, nil)
     if err != nil {
         return nil, err
@@ -152,8 +151,24 @@ func getPhones(clientID uint32) ([]Phone, error) {
         return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
     }
 
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return nil, err
+    }
+    return body, nil
+}
+
+func getPhones(clientID uint32) ([]Phone, error) {
+    phonesURL := "http://localhost:8080/phones"
+    url := fmt.Sprintf("%s/%d", phonesURL, clientID)  // Format URL with client ID
+
+    body, err := callAPI(url)
+    if err != nil {
+        return nil, err
+    }
+
     var phones []Phone
-    err = json.NewDecoder(resp.Body).Decode(&phones)
+    err = json.Unmarshal(body, &phones)
     if err != nil {
         return nil, err
     }
@@ -164,24 +179,14 @@ func getPhones(clientID uint32) ([]Phone, error) {
 func getAddress(clientID uint32) (*Address, error) {
     addressURL := "http://localhost:8080/address"
     url := fmt.Sprintf("%s/%d", addressURL, clientID)
-    req, err := http.NewRequest(http.MethodGet, url, nil)
+
+    body, err := callAPI(url)
     if err != nil {
         return nil, err
-    }
-
-    http_client := &http.Client{}
-    resp, err := http_client.Do(req)
-    if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-
-    if resp.StatusCode != http.StatusOK {
-        return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
     }
 
     var address Address
-    err = json.NewDecoder(resp.Body).Decode(&address)
+    err = json.Unmarshal(body, &address)
     if err != nil {
         return nil, err
     }
