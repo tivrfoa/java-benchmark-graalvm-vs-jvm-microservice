@@ -62,6 +62,52 @@ running (1m30.0s), 0/4 VUs, 134163 complete and 0 interrupted iterations
 default ✓ [======================================] 0/4 VUs  1m30s
 ```
 
+## wrk
+
+`$ wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello`
+
+Max CPU: 29,56%
+
+In this test, the JVM initially uses more CPU than native, but
+then it uses < 22% when it becomes hot.
+
+But higher CPU usage doesn't always mean less efficient. It would be if
+the native was serving less requests, but it was able to
+serve more requests (194).
+
+On the other hand, native uses less memory.
+
+What is more expensive in cloud cost: cpu or memory?
+
+Each kind of application requires its own calculation.
+
+```txt
+Running 20s test @ http://localhost:8081/hello
+  10 threads and 100 connections
+  Thread calibration: mean lat.: 1.933ms, rate sampling interval: 10ms
+  ...
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.93ms  715.58us  19.97ms   89.20%
+    Req/Sec   212.73     46.77   555.00     81.01%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.86ms
+ 75.000%    2.17ms
+ 90.000%    2.49ms
+ 99.000%    3.70ms
+ 99.900%   10.83ms
+ 99.990%   16.14ms
+ 99.999%   19.98ms
+100.000%   19.98ms
+
+#[Mean    =        1.926, StdDeviation   =        0.716]
+#[Max     =       19.968, Total count    =        19894]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  40004 requests in 20.00s, 37.61MB read
+Requests/sec:   2000.27
+Transfer/sec:      1.88MB
+```
+
 # JVM
 
 ```txt
@@ -125,6 +171,76 @@ running (1m30.0s), 0/4 VUs, 91304 complete and 0 interrupted iterations
 default ✓ [======================================] 0/4 VUs  1m30s
 ```
 
+## wrk
+
+`$ wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello`
+
+(Looking at poor man profiler: System Monitor :P)
+Max CPU, first run: 84,26%
+Max CPU, second run: 70%
+Max CPU, third run: 42,55%
+
+After the second run, it's already hot. There's only a spike at
+the beginning of ~40%, than it stays < 22%.
+
+### Data after first run:
+
+```txt
+Running 20s test @ http://localhost:8081/hello
+  10 threads and 100 connections
+  Thread calibration: mean lat.: 2337.622ms, rate sampling interval: 5558ms
+  ...
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     2.23s   438.80ms   2.93s    64.55%
+    Req/Sec   214.40      0.66   215.00    100.00%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    2.32s
+ 75.000%    2.60s
+ 90.000%    2.73s
+ 99.000%    2.86s
+ 99.900%    2.91s
+ 99.990%    2.93s
+ 99.999%    2.93s
+100.000%    2.93s
+
+#[Mean    =     2228.418, StdDeviation   =      438.798]
+#[Max     =     2930.688, Total count    =        22630]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  37333 requests in 20.01s, 35.10MB read
+Requests/sec:   1865.53
+Transfer/sec:      1.75MB
+```
+
+### Data after third run:
+
+```txt
+Running 20s test @ http://localhost:8081/hello
+  10 threads and 100 connections
+  Thread calibration: mean lat.: 1.884ms, rate sampling interval: 10ms
+  ...
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.85ms  584.71us   8.34ms   72.55%
+    Req/Sec   207.88    130.11     1.11k    90.37%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.79ms
+ 75.000%    2.15ms
+ 90.000%    2.56ms
+ 99.000%    3.70ms
+ 99.900%    5.52ms
+ 99.990%    7.64ms
+ 99.999%    8.35ms
+100.000%    8.35ms
+
+#[Mean    =        1.855, StdDeviation   =        0.585]
+#[Max     =        8.344, Total count    =        19900]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  39810 requests in 20.00s, 37.43MB read
+Requests/sec:   1990.22
+Transfer/sec:      1.87MB
+```
+
 # Go
 
 ```txt
@@ -180,6 +296,20 @@ $ k6 run k6_bench1.js
 
 running (1m30.0s), 0/4 VUs, 201037 complete and 0 interrupted iterations
 default ✓ [======================================] 0/4 VUs  1m30s
+```
+
+## wrk
+
+```txt
+$ wrk -t 10 -c 100 -R 1000 http://localhost:8081/hello
+Running 10s test @ http://localhost:8081/hello
+  10 threads and 100 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.71ms  523.88us   4.74ms   69.99%
+    Req/Sec       -nan      -nan   0.00      0.00%
+  10010 requests in 10.00s, 9.54MB read
+Requests/sec:   1000.73
+Transfer/sec:      0.95MB
 ```
 
 

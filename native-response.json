@@ -1,0 +1,109 @@
+{
+  "client": {
+    "name": "A",
+    "age": 18,
+    "guardianID": 0,
+    "monthSalary": 3000,
+    "address": {
+      "street": "123 Main St",
+      "number": 42,
+      "state": "CA",
+      "country": "USA"
+    },
+    "phones": [
+      {
+        "ddd": 11,
+        "number": 987654321
+      },
+      {
+        "ddd": 21,
+        "number": 123456789
+      },
+      {
+        "ddd": 22,
+        "number": 987654320
+      },
+      {
+        "ddd": 31,
+        "number": 123456788
+      },
+      {
+        "ddd": 32,
+        "number": 987654319
+      },
+      {
+        "ddd": 41,
+        "number": 123456787
+      },
+      {
+        "ddd": 42,
+        "number": 987654318
+      },
+      {
+        "ddd": 51,
+        "number": 123456786
+      },
+      {
+        "ddd": 52,
+        "number": 987654317
+      },
+      {
+        "ddd": 61,
+        "number": 123456785
+      },
+      {
+        "ddd": 62,
+        "number": 987654316
+      },
+      {
+        "ddd": 71,
+        "number": 123456784
+      },
+      {
+        "ddd": 72,
+        "number": 987654315
+      },
+      {
+        "ddd": 81,
+        "number": 123456783
+      },
+      {
+        "ddd": 82,
+        "number": 987654314
+      },
+      {
+        "ddd": 91,
+        "number": 123456782
+      },
+      {
+        "ddd": 92,
+        "number": 987654313
+      },
+      {
+        "ddd": 10,
+        "number": 123456781
+      },
+      {
+        "ddd": 10,
+        "number": 987654312
+      }
+    ]
+  },
+  "loanOptions": [
+    {
+      "years": 1,
+      "loan": 1004.4,
+      "monthlyInstallment": 90
+    },
+    {
+      "years": 2,
+      "loan": 2008.8,
+      "monthlyInstallment": 90
+    },
+    {
+      "years": 3,
+      "loan": 3013.2,
+      "monthlyInstallment": 90
+    }
+  ]
+}
