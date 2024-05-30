@@ -1,6 +1,6 @@
 
 
-## Native
+# Native
 
 ```txt
 root@lesco-Lenovo-IdeaPad-S145-15API:/home/lesco/dev/benchmark-microservice1/code-with-quarkus# perf stat -a ./target/code-with-quarkus-1.0.0-SNAPSHOT-runner
@@ -30,7 +30,7 @@ __  ____  __  _____   ___  __ ____  ______
      201,803348410 seconds time elapsed
 ```
 
-### k6 benchmark result
+## k6 benchmark result
 
 ```txt
      scenarios: (100.00%) 1 scenario, 4 max VUs, 2m0s max duration (incl. graceful stop):
@@ -62,7 +62,7 @@ running (1m30.0s), 0/4 VUs, 134163 complete and 0 interrupted iterations
 default ✓ [======================================] 0/4 VUs  1m30s
 ```
 
-## JVM
+# JVM
 
 ```txt
 root@lesco-Lenovo-IdeaPad-S145-15API:/home/lesco/dev/benchmark-microservice1/code-with-quarkus# perf stat -a /home/lesco/Softwares/graalvm-jdk-21_linux-x64_bin/graalvm-jdk-21.0.1+12.1/bin/java -jar target/quarkus-app/quarkus-run.jar
@@ -92,7 +92,7 @@ __  ____  __  _____   ___  __ ____  ______
      105,416088205 seconds time elapsed
 ```
 
-### k6 benchmark result
+## k6 benchmark result
 
 ```txt
 $ k6 run k6_bench1.js
@@ -124,3 +124,97 @@ $ k6 run k6_bench1.js
 running (1m30.0s), 0/4 VUs, 91304 complete and 0 interrupted iterations
 default ✓ [======================================] 0/4 VUs  1m30s
 ```
+
+# Go
+
+```txt
+benchmark-microservice1/go1# perf stat -a bin/service
+Server listening on port 8081
+^Cbin/service: Interrupt
+
+ Performance counter stats for 'system wide':
+
+        922.559,49 msec cpu-clock                        #    8,000 CPUs utilized
+        12.778.145      context-switches                 #   13,851 K/sec
+         2.418.088      cpu-migrations                   #    2,621 K/sec
+           371.431      page-faults                      #  402,609 /sec
+ 1.735.925.835.375      cycles                           #    1,882 GHz                         (83,33%)
+   452.012.861.438      stalled-cycles-frontend          #   26,04% frontend cycles idle        (83,33%)
+   120.632.126.301      stalled-cycles-backend           #    6,95% backend cycles idle         (83,33%)
+   695.183.892.670      instructions                     #    0,40  insn per cycle
+                                                  #    0,65  stalled cycles per insn     (83,34%)
+   157.903.344.954      branches                         #  171,158 M/sec                       (83,33%)
+    10.684.696.855      branch-misses                    #    6,77% of all branches             (83,34%)
+
+     115,319221896 seconds time elapsed
+```
+
+## k6 benchmark result
+
+```txt
+$ k6 run k6_bench1.js
+     scenarios: (100.00%) 1 scenario, 4 max VUs, 2m0s max duration (incl. graceful stop):
+              * default: Up to 4 looping VUs for 1m30s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+       ✓ status code should be 200
+
+     checks.........................: 100.00% ✓ 201037      ✗ 0
+     data_received..................: 201 MB  2.2 MB/s
+     data_sent......................: 17 MB   190 kB/s
+     group_duration.................: avg=991.66µs min=583.33µs med=932.33µs max=82.44ms p(90)=1.27ms  p(95)=1.42ms
+     http_req_blocked...............: avg=8.73µs   min=3.91µs   med=8.1µs    max=1.3ms   p(90)=10.54µs p(95)=12.78µs
+     http_req_connecting............: avg=4ns      min=0s       med=0s       max=270.5µs p(90)=0s      p(95)=0s
+     http_req_duration..............: avg=866.2µs  min=509.08µs med=805.5µs  max=18.33ms p(90)=1.13ms  p(95)=1.28ms
+       { expected_response:true }...: avg=866.2µs  min=509.08µs med=805.5µs  max=18.33ms p(90)=1.13ms  p(95)=1.28ms
+     http_req_failed................: 0.00%   ✓ 0           ✗ 201037
+     http_req_receiving.............: avg=61.43µs  min=21.09µs  med=55.73µs  max=17.57ms p(90)=83.95µs p(95)=96.31µs
+     http_req_sending...............: avg=21.37µs  min=7.26µs   med=19.97µs  max=2.11ms  p(90)=27.65µs p(95)=31.01µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s      p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=783.39µs min=446.15µs med=720.64µs max=9.33ms  p(90)=1.04ms  p(95)=1.18ms
+     http_reqs......................: 201037  2233.466824/s
+     iteration_duration.............: avg=1.01ms   min=606.24µs med=960.13µs max=82.61ms p(90)=1.3ms   p(95)=1.46ms
+     iterations.....................: 201037  2233.466824/s
+     vus............................: 1       min=1         max=4
+     vus_max........................: 4       min=4         max=4
+
+
+running (1m30.0s), 0/4 VUs, 201037 complete and 0 interrupted iterations
+default ✓ [======================================] 0/4 VUs  1m30s
+```
+
+
+# benchmarksgame Go x Java
+
+https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/go.html
+
+Go 6 x Java 4 (2024-05-30)
+
+```txt
+Go
+
+go version go1.22.0 linux/amd64
+GOAMD64=v2
+Java
+
+java 22 2024-03-19
+Java HotSpot(TM) 64-Bit Server VM
+(build 22+36-2370,
+mixed mode, sharing)
+```
+
+## Go wins
+
+fannkuch-redux
+n-body
+spectral-norm
+mandelbrot
+regex-redux
+reverse-complement
+
+## Java wins
+
+pidigits
+fasta
+k-nucleotide
+binary-trees
+
