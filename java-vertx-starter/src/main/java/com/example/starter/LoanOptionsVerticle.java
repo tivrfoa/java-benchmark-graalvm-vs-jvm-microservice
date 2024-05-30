@@ -85,14 +85,7 @@ public class LoanOptionsVerticle extends AbstractVerticle {
   }
 
   private List<Phone> getPhones(HttpResponse<Buffer> phonesBuffer) {
-    // System.out.println(phonesBuffer.bodyAsString());
-    List<Phone> phones = new ArrayList<>();
-    // var phoneObj = phonesBuffer.b;
-    JsonArray phoneArray = phonesBuffer.bodyAsJsonArray();
-    for (int i = 0; i < phoneArray.size(); i++) {
-      phones.add(phoneArray.getJsonObject(i).mapTo(Phone.class));
-    }
-    return phones;
+    return phonesBuffer.bodyAsJson(List.class);
   }
 
   private List<LoanOption> calculateLoanOptions(Client client) {
