@@ -47,45 +47,47 @@ public class LoanOptionsVerticle extends AbstractVerticle {
         .listen(8081)
         .onSuccess(server -> System.out.println(
             "HTTP server started on port " + server.actualPort()))
-         .onFailure(err -> err.printStackTrace());
+        .onFailure(err -> err.printStackTrace());
   }
 
   private void getServiceHandler(io.vertx.ext.web.RoutingContext context) {
     int clientID = counter.getAndUpdate(value -> (value + 1) % 10);
     var client = clients[clientID];
 
-    Future<HttpResponse<Buffer>> phoneFuture = WebClient.create(vertx).get(8080, "127.0.0.1", "http://127.0.0.1:8080/phones/" + clientID).send();
+    var webClient = WebClient.create(vertx);
+    var phonesFuture = webClient
+        .get(8080, "127.0.0.1", "http://127.0.0.1:8080/phones/" + clientID)
+        .send()
+        .onSuccess(resp -> {
+          client.setPhones(resp.bodyAsJson(List.class));
+        })
+        .onFailure(err -> {
+          System.err.println("Failed to get phones");
+          err.printStackTrace();
+        });
+
     Future<HttpResponse<Buffer>> addressFuture;
     final List<LoanOption> loanOptions;
     if (client.getAge() >= 18) {
-      addressFuture = WebClient.create(vertx).get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + clientID).send();
+      addressFuture = webClient.get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + clientID).send();
       loanOptions = calculateLoanOptions(client);
     } else {
-      addressFuture = WebClient.create(vertx).get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + client.getGuardianID()).send();
+      addressFuture = webClient.get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + client.getGuardianID())
+          .send();
       loanOptions = NO_LOAN_OPTIONS_AVAILABLE;
     }
 
-    List<Future> allFutures = new ArrayList<>();
-    allFutures.add(phoneFuture);
-    allFutures.add(addressFuture);
+    addressFuture
+        .onSuccess(resp -> client.setAddress(resp.bodyAsJson(Address.class)))
+        .onFailure(err -> System.err.println(err.getMessage()));
 
-    CompositeFuture.all(allFutures).onSuccess(composite -> {
-      // System.out.println("Futures completed");
-      client.setPhones(getPhones(phoneFuture.result()));
-      client.setAddress(addressFuture.result().bodyAsJson(Address.class));
-      JsonObject response = new JsonObject()
-          .put("client", JsonObject.mapFrom(client))
-          .put("loanOptions", JsonArray.of(loanOptions));
-      context.response().putHeader("Content-Type", "application/json").end(response.encode());
-    }).onFailure(composite -> {
-      System.err.println("ops ... " + composite.getMessage());
-      composite.printStackTrace();
-      context.fail(500);
-    });
-  }
-
-  private List<Phone> getPhones(HttpResponse<Buffer> phonesBuffer) {
-    return phonesBuffer.bodyAsJson(List.class);
+    Future.all(phonesFuture, addressFuture)
+        .onComplete(_h -> {
+          JsonObject response = new JsonObject()
+              .put("client", JsonObject.mapFrom(client))
+              .put("loanOptions", JsonArray.of(loanOptions));
+          context.response().putHeader("Content-Type", "application/json").end(response.encode());
+        });
   }
 
   private List<LoanOption> calculateLoanOptions(Client client) {
