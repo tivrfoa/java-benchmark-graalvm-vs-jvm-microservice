@@ -13,16 +13,16 @@ import (
 
 // Define a struct to hold client information
 type Client struct {
-    ID          int     `json:"id"`
+    ID          uint32  `json:"id"`
     Name        string  `json:"name"`
-    Age         int     `json:"age"`
-    GuardianID  int     `json:"guardianID"`
+    Age         uint32  `json:"age"`
+    GuardianID  uint32  `json:"guardianID"`
     MonthSalary float64 `json:"monthSalary"`
     Address     Address `json:"address"`
     Phones      []Phone `json:"phones"`
 }
 
-func NewClient(name string, age int, monthSalary float64) Client {
+func NewClient(name string, age uint32, monthSalary float64) Client {
   return Client{
     // Set the relevant fields based on the provided arguments
     Name:        name,
@@ -113,12 +113,21 @@ func getServiceHandler(w http.ResponseWriter, r *http.Request) {
     }
     client.Phones = phones
 
-    address, err := getAddress(clientID)
-    if err != nil {
-        fmt.Println("Error fetching address:", err)
-        return
+    if client.Age >= 18 {
+        address, err := getAddress(clientID)
+        if err != nil {
+            fmt.Println("Error fetching address:", err)
+            return
+        }
+        client.Address = *address
+    } else {
+        address, err := getAddress(client.GuardianID)
+        if err != nil {
+            fmt.Println("Error fetching address:", err)
+            return
+        }
+        client.Address = *address
     }
-    client.Address = *address
 
     // fmt.Println("Client information:")
     // fmt.Println(string(clientJSON)) // Print JSON representation of client data
