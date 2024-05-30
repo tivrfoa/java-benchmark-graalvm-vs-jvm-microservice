@@ -2,32 +2,9 @@
 
 # Native
 
+## TODO: add perf stat
+
 ```txt
-root@lesco-Lenovo-IdeaPad-S145-15API:/home/lesco/dev/benchmark-microservice1/code-with-quarkus# perf stat -a ./target/code-with-quarkus-1.0.0-SNAPSHOT-runner
-__  ____  __  _____   ___  __ ____  ______
- --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
- -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
---\___\_\____/_/ |_/_/|_/_/|_|\____/___/
-2024-05-29 08:37:31,080 INFO  [io.quarkus] (main) code-with-quarkus 1.0.0-SNAPSHOT native (powered by Quarkus 3.10.2) started in 0.076s. Listening on: http://0.0.0.0:8081
-2024-05-29 08:37:31,081 INFO  [io.quarkus] (main) Profile prod activated.
-2024-05-29 08:37:31,081 INFO  [io.quarkus] (main) Installed features: [cdi, rest, rest-client, rest-client-jackson, rest-jackson, smallrye-context-propagation, vertx]
-^C2024-05-29 08:40:52,719 INFO  [io.quarkus] (Shutdown thread) code-with-quarkus stopped in 0.009s
-
- Performance counter stats for 'system wide':
-
-      1.614.430,45 msec cpu-clock                        #    8,000 CPUs utilized
-         8.205.230      context-switches                 #    5,082 K/sec
-           759.148      cpu-migrations                   #  470,227 /sec
-           603.966      page-faults                      #  374,105 /sec
- 1.661.657.756.001      cycles                           #    1,029 GHz                         (83,33%)
-   556.299.263.343      stalled-cycles-frontend          #   33,48% frontend cycles idle        (83,33%)
-   124.644.045.893      stalled-cycles-backend           #    7,50% backend cycles idle         (83,33%)
-   579.436.517.564      instructions                     #    0,35  insn per cycle
-                                                  #    0,96  stalled cycles per insn     (83,33%)
-   129.754.021.310      branches                         #   80,371 M/sec                       (83,33%)
-     8.293.039.468      branch-misses                    #    6,39% of all branches             (83,33%)
-
-     201,803348410 seconds time elapsed
 ```
 
 ## k6 benchmark result
@@ -66,6 +43,15 @@ default ✓ [======================================] 0/4 VUs  1m30s
 
 `$ wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello`
 
+### Getting maximum RSS size with /usr/bin/time
+
+```txt
+$ /usr/bin/time --verbose ./target/code-with-quarkus-1.0.0-SNAPSHOT-runner
+	Percent of CPU this job got: 134%
+	Maximum resident set size (kbytes): 112128
+```
+
+
 Max CPU: 29,56%
 
 In this test, the JVM initially uses more CPU than native, but
@@ -80,6 +66,15 @@ On the other hand, native uses less memory.
 What is more expensive in cloud cost: cpu or memory?
 
 Each kind of application requires its own calculation.
+
+
+```txt
+$ /usr/bin/time --verbose ./bin/service
+Server listening on port 8081
+...
+	Percent of CPU this job got: 71%
+	Maximum resident set size (kbytes): 16128
+```
 
 ```txt
 Running 20s test @ http://localhost:8081/hello
@@ -110,32 +105,9 @@ Transfer/sec:      1.88MB
 
 # JVM
 
+## TODO: add perf stat
+
 ```txt
-root@lesco-Lenovo-IdeaPad-S145-15API:/home/lesco/dev/benchmark-microservice1/code-with-quarkus# perf stat -a /home/lesco/Softwares/graalvm-jdk-21_linux-x64_bin/graalvm-jdk-21.0.1+12.1/bin/java -jar target/quarkus-app/quarkus-run.jar
-__  ____  __  _____   ___  __ ____  ______
- --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
- -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
---\___\_\____/_/ |_/_/|_/_/|_|\____/___/
-2024-05-29 08:44:15,763 INFO  [io.quarkus] (main) code-with-quarkus 1.0.0-SNAPSHOT on JVM (powered by Quarkus 3.10.2) started in 1.640s. Listening on: http://0.0.0.0:8081
-2024-05-29 08:44:15,767 INFO  [io.quarkus] (main) Profile prod activated.
-2024-05-29 08:44:15,768 INFO  [io.quarkus] (main) Installed features: [cdi, rest, rest-client, rest-client-jackson, rest-jackson, smallrye-context-propagation, vertx]
-^C2024-05-29 08:45:59,190 INFO  [io.quarkus] (main) code-with-quarkus stopped in 0.074s
-
- Performance counter stats for 'system wide':
-
-        843.330,36 msec cpu-clock                        #    8,000 CPUs utilized
-         5.735.346      context-switches                 #    6,801 K/sec
-           676.026      cpu-migrations                   #  801,615 /sec
-           332.248      page-faults                      #  393,971 /sec
- 1.396.189.380.176      cycles                           #    1,656 GHz                         (83,33%)
-   460.967.451.968      stalled-cycles-frontend          #   33,02% frontend cycles idle        (83,33%)
-    79.466.686.729      stalled-cycles-backend           #    5,69% backend cycles idle         (83,34%)
-   441.575.469.047      instructions                     #    0,32  insn per cycle
-                                                  #    1,04  stalled cycles per insn     (83,33%)
-    98.387.092.557      branches                         #  116,665 M/sec                       (83,34%)
-     5.693.829.032      branch-misses                    #    5,79% of all branches             (83,34%)
-
-     105,416088205 seconds time elapsed
 ```
 
 ## k6 benchmark result
@@ -175,7 +147,17 @@ default ✓ [======================================] 0/4 VUs  1m30s
 
 `$ wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello`
 
-(Looking at poor man profiler: System Monitor :P)
+### Getting maximum RSS size with /usr/bin/time
+
+```txt
+$ /usr/bin/time --verbose java -jar target/quarkus-app/quarkus-run.jar
+	Percent of CPU this job got: 424%
+	Maximum resident set size (kbytes): 289300
+```
+
+
+Looking at poor man profiler: System Monitor :P
+It can't be trusted, because it doesn't show the usage across all CPUs
 Max CPU, first run: 84,26%
 Max CPU, second run: 70%
 Max CPU, third run: 42,55%
@@ -243,26 +225,9 @@ Transfer/sec:      1.87MB
 
 # Go
 
+## TODO: add perf stat
+
 ```txt
-benchmark-microservice1/go1# perf stat -a bin/service
-Server listening on port 8081
-^Cbin/service: Interrupt
-
- Performance counter stats for 'system wide':
-
-        922.559,49 msec cpu-clock                        #    8,000 CPUs utilized
-        12.778.145      context-switches                 #   13,851 K/sec
-         2.418.088      cpu-migrations                   #    2,621 K/sec
-           371.431      page-faults                      #  402,609 /sec
- 1.735.925.835.375      cycles                           #    1,882 GHz                         (83,33%)
-   452.012.861.438      stalled-cycles-frontend          #   26,04% frontend cycles idle        (83,33%)
-   120.632.126.301      stalled-cycles-backend           #    6,95% backend cycles idle         (83,33%)
-   695.183.892.670      instructions                     #    0,40  insn per cycle
-                                                  #    0,65  stalled cycles per insn     (83,34%)
-   157.903.344.954      branches                         #  171,158 M/sec                       (83,33%)
-    10.684.696.855      branch-misses                    #    6,77% of all branches             (83,34%)
-
-     115,319221896 seconds time elapsed
 ```
 
 ## k6 benchmark result
@@ -300,16 +265,41 @@ default ✓ [======================================] 0/4 VUs  1m30s
 
 ## wrk
 
+`$ wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello`
+
+### Getting maximum RSS size with /usr/bin/time
+
 ```txt
-$ wrk -t 10 -c 100 -R 1000 http://localhost:8081/hello
-Running 10s test @ http://localhost:8081/hello
+$ /usr/bin/time --verbose ./bin/service
+	Percent of CPU this job got: 71%
+	Maximum resident set size (kbytes): 16128
+```
+
+```txt
+Running 20s test @ http://localhost:8081/hello
   10 threads and 100 connections
+  Thread calibration: mean lat.: 1.565ms, rate sampling interval: 10ms
+  ...
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.71ms  523.88us   4.74ms   69.99%
-    Req/Sec       -nan      -nan   0.00      0.00%
-  10010 requests in 10.00s, 9.54MB read
-Requests/sec:   1000.73
-Transfer/sec:      0.95MB
+    Latency     1.43ms  457.59us   4.53ms   67.74%
+    Req/Sec   212.41     40.44   333.00     85.20%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.40ms
+ 75.000%    1.71ms
+ 90.000%    2.03ms
+ 99.000%    2.62ms
+ 99.900%    3.24ms
+ 99.990%    3.59ms
+ 99.999%    4.53ms
+100.000%    4.53ms
+
+#[Mean    =        1.425, StdDeviation   =        0.458]
+#[Max     =        4.528, Total count    =        19896]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  40006 requests in 20.00s, 38.14MB read
+Requests/sec:   2000.44
+Transfer/sec:      1.91MB
 ```
 
 
