@@ -7,9 +7,10 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
+import io.vertx.uritemplate.UriTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LoanOptionsVerticle extends AbstractVerticle {
 
   private static final List<LoanOption> NO_LOAN_OPTIONS_AVAILABLE = List.of();
-  private static final List<Phone> ONE_PHONE = List.of(new Phone(61, 99999999));
   private static final AtomicInteger counter = new AtomicInteger(0);
   private static Client[] clients = new Client[] {
       new Client("A", 18, 3000),
@@ -37,15 +37,22 @@ public class LoanOptionsVerticle extends AbstractVerticle {
   //   Vertx vertx = Vertx.vertx();
   //   vertx.deployVerticle(LoanOptionsVerticle.class.getName());
   // }
-  WebClient webClient;
+
+  private static final UriTemplate PHONES_URI = UriTemplate.of("/phones/{client_id}");
+  private static final UriTemplate ADDRESS_URI = UriTemplate.of("/address/{client_id}");
+  private static HttpRequest<Buffer> PHONES_REQUEST;
+  private static HttpRequest<Buffer> ADDRESS_REQUEST;
+
+  private WebClient webClient;
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     Router router = Router.router(vertx);
     router.get("/hello").handler(this::getServiceHandler);
-    WebClientOptions webClientOptions = new WebClientOptions();
-    // webClientOptions.setMaxPoolSize(40);
-    webClient = WebClient.create(vertx, webClientOptions);
+
+    webClient = WebClient.create(vertx);
+    PHONES_REQUEST = webClient.get(8080, "localhost", PHONES_URI);
+    ADDRESS_REQUEST = webClient.get(8080, "localhost", ADDRESS_URI);
 
     vertx.createHttpServer()
         .requestHandler(router)
@@ -60,14 +67,11 @@ public class LoanOptionsVerticle extends AbstractVerticle {
   private void getServiceHandler(io.vertx.ext.web.RoutingContext context) {
     int clientID = counter.getAndUpdate(value -> (value + 1) % 10);
     var client = clients[clientID];
-
-    // var webClient = WebClient.create(vertx);
-    var phonesFuture = webClient
-        .get(8080, "127.0.0.1", "http://127.0.0.1:8080/phones/" + clientID)
+    var phonesFuture = PHONES_REQUEST
+        .setTemplateParam("client_id", "" + clientID)
         .send()
         .onSuccess(resp -> {
           client.setPhones(resp.bodyAsJson(List.class));
-          // client.setPhones(ONE_PHONE);
         })
         .onFailure(err -> {
           System.err.println("Failed to get phones");
@@ -77,10 +81,13 @@ public class LoanOptionsVerticle extends AbstractVerticle {
     final Future<HttpResponse<Buffer>> addressFuture;
     final List<LoanOption> loanOptions;
     if (client.getAge() >= 18) {
-      addressFuture = webClient.get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + clientID).send();
+      addressFuture = ADDRESS_REQUEST
+          .setTemplateParam("client_id", "" + clientID)
+          .send();
       loanOptions = calculateLoanOptions(client);
     } else {
-      addressFuture = webClient.get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + client.getGuardianID())
+      addressFuture = ADDRESS_REQUEST
+          .setTemplateParam("client_id", "" + client.getGuardianID())
           .send();
       loanOptions = NO_LOAN_OPTIONS_AVAILABLE;
     }

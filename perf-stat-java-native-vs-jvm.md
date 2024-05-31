@@ -285,6 +285,64 @@ Requests/sec:   2000.34
 Transfer/sec:      1.87MB
 ```
 
+### Reusing Request and Using UriTemplate - First Run
+
+```txt
+Running 20s test @ http://localhost:8081/hello
+  10 threads and 100 connections
+  Thread calibration: mean lat.: 2160.030ms, rate sampling interval: 5083ms
+  ...
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   190.37ms  378.36ms   1.43s    84.34%
+    Req/Sec   255.00      0.00   255.00    100.00%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.54ms
+ 75.000%  120.19ms
+ 90.000%  887.81ms
+ 99.000%    1.37s
+ 99.900%    1.41s
+ 99.990%    1.42s
+ 99.999%    1.43s
+100.000%    1.43s
+
+#[Mean    =      190.368, StdDeviation   =      378.361]
+#[Max     =     1428.480, Total count    =        22730]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  40010 requests in 20.00s, 37.41MB read
+Requests/sec:   2000.33
+Transfer/sec:      1.87MB
+```
+
+### Reusing Request and Using UriTemplate - Second Run
+
+```txt
+Running 20s test @ http://localhost:8081/hello
+  10 threads and 100 connections
+  Thread calibration: mean lat.: 1.408ms, rate sampling interval: 10ms
+  ...
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.25ms  475.40us   4.75ms   69.24%
+    Req/Sec   208.48     39.09   333.00     86.46%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.23ms
+ 75.000%    1.53ms
+ 90.000%    1.85ms
+ 99.000%    2.59ms
+ 99.900%    3.73ms
+ 99.990%    4.66ms
+ 99.999%    4.75ms
+100.000%    4.75ms
+
+#[Mean    =        1.250, StdDeviation   =        0.475]
+#[Max     =        4.748, Total count    =        19900]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  40010 requests in 20.00s, 37.41MB read
+Requests/sec:   2000.32
+Transfer/sec:      1.87MB
+```
+
 # Go
 
 ## TODO: add perf stat
