@@ -223,6 +223,68 @@ Requests/sec:   1990.22
 Transfer/sec:      1.87MB
 ```
 
+# Vertx
+
+## wrk
+
+### First run
+
+```
+Running 20s test @ http://localhost:8081/hello
+  10 threads and 100 connections
+  Thread calibration: mean lat.: 2453.853ms, rate sampling interval: 5578ms
+  ...
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   430.78ms  675.29ms   2.17s    80.22%
+    Req/Sec   277.00      0.00   277.00    100.00%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.61ms
+ 75.000%  791.55ms
+ 90.000%    1.67s
+ 99.000%    2.13s
+ 99.900%    2.17s
+ 99.990%    2.17s
+ 99.999%    2.17s
+100.000%    2.17s
+
+#[Mean    =      430.775, StdDeviation   =      675.294]
+#[Max     =     2170.880, Total count    =        24237]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  40008 requests in 20.00s, 37.41MB read
+Requests/sec:   2000.23
+Transfer/sec:      1.87MB
+```
+
+### Second run
+
+```txt
+Running 20s test @ http://localhost:8081/hello
+  10 threads and 100 connections
+  Thread calibration: mean lat.: 1.649ms, rate sampling interval: 10ms
+  ...
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.20ms  446.54us   5.26ms   68.21%
+    Req/Sec   206.94     36.36   333.00     88.25%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.18ms
+ 75.000%    1.47ms
+ 90.000%    1.76ms
+ 99.000%    2.33ms
+ 99.900%    3.65ms
+ 99.990%    4.74ms
+ 99.999%    5.26ms
+100.000%    5.26ms
+
+#[Mean    =        1.196, StdDeviation   =        0.447]
+#[Max     =        5.256, Total count    =        19897]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  40007 requests in 20.00s, 37.41MB read
+Requests/sec:   2000.34
+Transfer/sec:      1.87MB
+```
+
 # Go
 
 ## TODO: add perf stat

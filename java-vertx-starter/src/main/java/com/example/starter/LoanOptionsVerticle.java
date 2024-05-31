@@ -44,7 +44,7 @@ public class LoanOptionsVerticle extends AbstractVerticle {
     Router router = Router.router(vertx);
     router.get("/hello").handler(this::getServiceHandler);
     WebClientOptions webClientOptions = new WebClientOptions();
-    webClientOptions.setMaxPoolSize(40);
+    // webClientOptions.setMaxPoolSize(40);
     webClient = WebClient.create(vertx, webClientOptions);
 
     vertx.createHttpServer()
@@ -66,15 +66,15 @@ public class LoanOptionsVerticle extends AbstractVerticle {
         .get(8080, "127.0.0.1", "http://127.0.0.1:8080/phones/" + clientID)
         .send()
         .onSuccess(resp -> {
-          // client.setPhones(resp.bodyAsJson(List.class));
-          client.setPhones(ONE_PHONE);
+          client.setPhones(resp.bodyAsJson(List.class));
+          // client.setPhones(ONE_PHONE);
         })
         .onFailure(err -> {
           System.err.println("Failed to get phones");
           err.printStackTrace();
         });
 
-    Future<HttpResponse<Buffer>> addressFuture;
+    final Future<HttpResponse<Buffer>> addressFuture;
     final List<LoanOption> loanOptions;
     if (client.getAge() >= 18) {
       addressFuture = webClient.get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + clientID).send();
