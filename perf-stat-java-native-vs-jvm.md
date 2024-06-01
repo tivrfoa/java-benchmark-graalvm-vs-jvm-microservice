@@ -143,6 +143,38 @@ running (1m30.0s), 0/4 VUs, 91304 complete and 0 interrupted iterations
 default ✓ [======================================] 0/4 VUs  1m30s
 ```
 
+### k6 - Second run
+
+```
+$ k6 run k6_bench1.js
+     scenarios: (100.00%) 1 scenario, 4 max VUs, 2m0s max duration (incl. graceful stop):
+              * default: Up to 4 looping VUs for 1m30s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+       ✓ status code should be 200
+
+     checks.........................: 100.00% ✓ 143465     ✗ 0
+     data_received..................: 141 MB  1.6 MB/s
+     data_sent......................: 12 MB   136 kB/s
+     group_duration.................: avg=1.4ms   min=845.71µs med=1.32ms  max=11.69ms  p(90)=1.7ms   p(95)=1.91ms
+     http_req_blocked...............: avg=9.32µs  min=4.4µs    med=8.24µs  max=1.34ms   p(90)=11.59µs p(95)=14.17µs
+     http_req_connecting............: avg=7ns     min=0s       med=0s      max=305.27µs p(90)=0s      p(95)=0s
+     http_req_duration..............: avg=1.26ms  min=735.36µs med=1.18ms  max=11.55ms  p(90)=1.54ms  p(95)=1.74ms
+       { expected_response:true }...: avg=1.26ms  min=735.36µs med=1.18ms  max=11.55ms  p(90)=1.54ms  p(95)=1.74ms
+     http_req_failed................: 0.00%   ✓ 0          ✗ 143465
+     http_req_receiving.............: avg=67.8µs  min=24.23µs  med=63.9µs  max=1.49ms   p(90)=89.53µs p(95)=102.37µs
+     http_req_sending...............: avg=23.56µs min=8.94µs   med=21.44µs max=1.67ms   p(90)=31.98µs p(95)=36.93µs
+     http_req_tls_handshaking.......: avg=0s      min=0s       med=0s      max=0s       p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=1.16ms  min=660.77µs med=1.09ms  max=11.47ms  p(90)=1.43ms  p(95)=1.63ms
+     http_reqs......................: 143465  1594.04206/s
+     iteration_duration.............: avg=1.43ms  min=868.97µs med=1.35ms  max=11.71ms  p(90)=1.74ms  p(95)=1.95ms
+     iterations.....................: 143465  1594.04206/s
+     vus............................: 1       min=1        max=4
+     vus_max........................: 4       min=4        max=4
+
+
+running (1m30.0s), 0/4 VUs, 143465 complete and 0 interrupted iterations
+default ✓ [======================================] 0/4 VUs  1m30s
+```
+
 ## wrk
 
 `$ wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello`
