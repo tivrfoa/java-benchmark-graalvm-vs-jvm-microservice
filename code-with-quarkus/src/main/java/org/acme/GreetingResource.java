@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import io.smallrye.common.annotation.NonBlocking;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -60,7 +61,7 @@ public class GreetingResource {
         }
     }
 
-    // @NonBlocking
+    @NonBlocking
     @GET
     @Path("/NonBlocking")
     @Produces(MediaType.APPLICATION_JSON)

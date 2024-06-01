@@ -2,7 +2,11 @@
 
 
 
-## || Add Quarkus Reactive
+## |-| Add Quarkus Reactive
+
+I found the docs and examples too complicated ... :/
+I tried to use `Uni`, but failed ...
+Maybe someone can submit a PR with a better implementation.
 
 https://quarkus.io/guides/getting-started-reactive
 
@@ -13,6 +17,8 @@ https://quarkus.io/guides/reactive-event-bus
 https://stackoverflow.com/questions/73605586/is-quarkus-reactive-client-really-reactive
 
 https://dzone.com/articles/invoking-rest-apis-asynchronously-with-quarkus
+
+https://smallrye.io/smallrye-mutiny/2.0.0/guides/combining-items/
 
 
 
