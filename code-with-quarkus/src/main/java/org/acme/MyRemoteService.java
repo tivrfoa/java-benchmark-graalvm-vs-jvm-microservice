@@ -1,10 +1,10 @@
 package org.acme;
 
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -17,12 +17,12 @@ public interface MyRemoteService {
     @GET
     @Path("/address/{client_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    CompletionStage<Address> getAddressAsync(@PathParam("client_id") int clientID);
+    Uni<Address> getAddressAsync(@PathParam("client_id") int clientID);
 
     @GET
     @Path("/phones/{client_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    CompletionStage<List<Phone>> getPhonesAsync(@PathParam("client_id") int clientID);
+    Uni<List<Phone>> getPhonesAsync(@PathParam("client_id") int clientID);
 
     @GET
     @Path("/address/{client_id}")

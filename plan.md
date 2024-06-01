@@ -2,11 +2,7 @@
 
 
 
-## |-| Add Quarkus Reactive
-
-I found the docs and examples too complicated ... :/
-I tried to use `Uni`, but failed ...
-Maybe someone can submit a PR with a better implementation.
+## |x| Add Quarkus Reactive
 
 https://quarkus.io/guides/getting-started-reactive
 

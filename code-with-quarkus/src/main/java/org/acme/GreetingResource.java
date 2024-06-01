@@ -2,12 +2,11 @@ package org.acme;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import io.smallrye.common.annotation.NonBlocking;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -61,15 +60,14 @@ public class GreetingResource {
         }
     }
 
-    @NonBlocking
     @GET
     @Path("/NonBlocking")
     @Produces(MediaType.APPLICATION_JSON)
-    public CompletionStage<Response> getLoanOptionsNonBlocking() {
+    public Uni<Response> getLoanOptionsNonBlocking() {
         int client_id = counter.getAndUpdate(value -> (value + 1) % 10);
         var client = clients[client_id];
         var phonesFuture = myRemoteService.getPhonesAsync(client_id);
-        final CompletionStage<Address> addressFuture;
+        final Uni<Address> addressFuture;
         final List<LoanOption> loanOptions;
         if (client.getAge() >= 18) {
             addressFuture = myRemoteService.getAddressAsync(client_id);
@@ -82,8 +80,8 @@ public class GreetingResource {
             loanOptions = NO_LOAN_OPTIONS_AVAILABLE;
         }
 
-        return addressFuture
-            .thenCombine(phonesFuture, (address, phones) -> {
+        return Uni.combine().all().unis(phonesFuture, addressFuture)
+            .with((phones, address) -> {
                 client.setAddress(address);
                 client.setPhones(phones);
                 return Response.ok(new ResponseLoanOptions(client, loanOptions)).build();
