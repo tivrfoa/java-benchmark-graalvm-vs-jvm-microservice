@@ -1,3 +1,23 @@
+buildApi:
+	go build -o go/bin go/client-api.go
+
+buildGo:
+	go build -o go/bin go/service.go
+
+api:
+	./go/bin/client-api
+
+goService:
+	./go/bin/service
+
+javaQuarkus:
+	java -jar code-with-quarkus/target/quarkus-app/quarkus-run.jar
+
+# TODO javaNativeQuarkus:
+
+# TODO: javaVertx
+
+
 k6:
 	k6 run k6_bench1.js
 

@@ -1,0 +1,28 @@
+version: '3.5'
+services:
+  db:
+    image: postgres:16.2
+    container_name: postgres
+    network_mode: host
+    command: 'postgres -c max_connections=300'
+    environment:
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=bench
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.6'
+    #       memory: '400MB'
+    healthcheck:
+      test: ["CMD", "pg_isready", "--username", "admin", "-d", "bench"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+

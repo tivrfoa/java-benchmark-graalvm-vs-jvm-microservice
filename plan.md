@@ -4,6 +4,8 @@
 
 ## |x| Add Quarkus Reactive
 
+https://github.com/quarkusio/quarkus-super-heroes/blob/c68c84d362a376fde659c9b9cf6af1b80c6ea530/rest-fights/src/main/java/io/quarkus/sample/superheroes/fight/service/FightService.java#L100-L114
+
 https://quarkus.io/guides/getting-started-reactive
 
 https://quarkus.io/guides/mutiny-primer
@@ -19,6 +21,13 @@ https://smallrye.io/smallrye-mutiny/2.0.0/guides/combining-items/
 
 
 ## || Add Postgres database connection
+
+https://pkg.go.dev/database/sql
+
+https://golang.org/s/sqldrivers
+
+I used pgx (most stars xD)
+https://github.com/jackc/pgx
 
 
 ## || Add Rust
