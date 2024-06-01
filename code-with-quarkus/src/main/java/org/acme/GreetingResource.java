@@ -2,10 +2,12 @@ package org.acme;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import io.smallrye.common.annotation.NonBlocking;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -57,6 +59,35 @@ public class GreetingResource {
             client.setAddress(address);
             return Response.ok(new ResponseLoanOptions(client, NO_LOAN_OPTIONS_AVAILABLE)).build();
         }
+    }
+
+    @NonBlocking
+    @GET
+    @Path("/NonBlocking")
+    @Produces(MediaType.APPLICATION_JSON)
+    public CompletionStage<Response> getLoanOptionsNonBlocking() {
+        int client_id = counter.getAndUpdate(value -> (value + 1) % 10);
+        var client = clients[client_id];
+        var phonesFuture = myRemoteService.getPhonesAsync(client_id);
+        final CompletionStage<Address> addressFuture;
+        final List<LoanOption> loanOptions;
+        if (client.getAge() >= 18) {
+            addressFuture = myRemoteService.getAddressAsync(client_id);
+            loanOptions = calculateLoanOptions(client);
+        } else {
+            // branch never taken
+            // to test speculative performance
+            System.err.println("BUG: this should be unreachable");
+            addressFuture = myRemoteService.getAddressAsync(client.getGuardianID());
+            loanOptions = NO_LOAN_OPTIONS_AVAILABLE;
+        }
+
+        return addressFuture
+            .thenCombine(phonesFuture, (address, phones) -> {
+                client.setAddress(address);
+                client.setPhones(phones);
+                return Response.ok(new ResponseLoanOptions(client, loanOptions)).build();
+            });
     }
 
     private List<LoanOption> calculateLoanOptions(Client client) {
