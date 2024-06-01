@@ -7,10 +7,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.uritemplate.UriTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,22 +35,14 @@ public class LoanOptionsVerticle extends AbstractVerticle {
   //   Vertx vertx = Vertx.vertx();
   //   vertx.deployVerticle(LoanOptionsVerticle.class.getName());
   // }
-
-  private static final UriTemplate PHONES_URI = UriTemplate.of("/phones/{client_id}");
-  private static final UriTemplate ADDRESS_URI = UriTemplate.of("/address/{client_id}");
-  private static HttpRequest<Buffer> PHONES_REQUEST;
-  private static HttpRequest<Buffer> ADDRESS_REQUEST;
-
+  
   private WebClient webClient;
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     Router router = Router.router(vertx);
     router.get("/hello").handler(this::getServiceHandler);
-
     webClient = WebClient.create(vertx);
-    PHONES_REQUEST = webClient.get(8080, "localhost", PHONES_URI);
-    ADDRESS_REQUEST = webClient.get(8080, "localhost", ADDRESS_URI);
 
     vertx.createHttpServer()
         .requestHandler(router)
@@ -67,8 +57,9 @@ public class LoanOptionsVerticle extends AbstractVerticle {
   private void getServiceHandler(io.vertx.ext.web.RoutingContext context) {
     int clientID = counter.getAndUpdate(value -> (value + 1) % 10);
     var client = clients[clientID];
-    var phonesFuture = PHONES_REQUEST
-        .setTemplateParam("client_id", "" + clientID)
+
+    var phonesFuture = webClient
+        .get(8080, "127.0.0.1", "http://127.0.0.1:8080/phones/" + clientID)
         .send()
         .onSuccess(resp -> {
           client.setPhones(resp.bodyAsJson(List.class));
@@ -81,13 +72,10 @@ public class LoanOptionsVerticle extends AbstractVerticle {
     final Future<HttpResponse<Buffer>> addressFuture;
     final List<LoanOption> loanOptions;
     if (client.getAge() >= 18) {
-      addressFuture = ADDRESS_REQUEST
-          .setTemplateParam("client_id", "" + clientID)
-          .send();
+      addressFuture = webClient.get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + clientID).send();
       loanOptions = calculateLoanOptions(client);
     } else {
-      addressFuture = ADDRESS_REQUEST
-          .setTemplateParam("client_id", "" + client.getGuardianID())
+      addressFuture = webClient.get(8080, "127.0.0.1", "http://127.0.0.1:8080/address/" + client.getGuardianID())
           .send();
       loanOptions = NO_LOAN_OPTIONS_AVAILABLE;
     }

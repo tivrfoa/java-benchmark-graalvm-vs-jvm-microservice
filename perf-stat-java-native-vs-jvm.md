@@ -7,12 +7,12 @@
 ```txt
 ```
 
-## k6 benchmark result
+## k6 benchmark
 
 ```txt
+$ k6 run k6_bench1.js
      scenarios: (100.00%) 1 scenario, 4 max VUs, 2m0s max duration (incl. graceful stop):
               * default: Up to 4 looping VUs for 1m30s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
-
        ✓ status code should be 200
 
      checks.........................: 100.00% ✓ 134163      ✗ 0
@@ -225,6 +225,38 @@ Transfer/sec:      1.87MB
 
 # Vertx
 
+## k6 benchmark
+
+```txt
+$ k6 run k6_bench1.js
+     scenarios: (100.00%) 1 scenario, 4 max VUs, 2m0s max duration (incl. graceful stop):
+              * default: Up to 4 looping VUs for 1m30s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+       ✓ status code should be 200
+
+     checks.........................: 100.00% ✓ 237722      ✗ 0
+     data_received..................: 233 MB  2.6 MB/s
+     data_sent......................: 20 MB   225 kB/s
+     group_duration.................: avg=829.47µs min=419.19µs med=757.92µs max=12.35ms p(90)=1.04ms   p(95)=1.24ms
+     http_req_blocked...............: avg=9.03µs   min=4.19µs   med=8.1µs    max=1.62ms  p(90)=11.31µs  p(95)=13.68µs
+     http_req_connecting............: avg=4ns      min=0s       med=0s       max=324.9µs p(90)=0s       p(95)=0s
+     http_req_duration..............: avg=705.88µs min=330.49µs med=641.57µs max=12.16ms p(90)=903.96µs p(95)=1.07ms
+       { expected_response:true }...: avg=705.88µs min=330.49µs med=641.57µs max=12.16ms p(90)=903.96µs p(95)=1.07ms
+     http_req_failed................: 0.00%   ✓ 0           ✗ 237722
+     http_req_receiving.............: avg=58.23µs  min=19.83µs  med=52.38µs  max=4.41ms  p(90)=81.57µs  p(95)=93.03µs
+     http_req_sending...............: avg=21.55µs  min=7.19µs   med=19.48µs  max=6.38ms  p(90)=30.59µs  p(95)=35.54µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s      p(90)=0s       p(95)=0s
+     http_req_waiting...............: avg=626.1µs  min=285.02µs med=566.97µs max=10.29ms p(90)=812.33µs p(95)=973.72µs
+     http_reqs......................: 237722  2641.340906/s
+     iteration_duration.............: avg=857.92µs min=440.56µs med=785.09µs max=12.39ms p(90)=1.08ms   p(95)=1.28ms
+     iterations.....................: 237722  2641.340906/s
+     vus............................: 1       min=1         max=4
+     vus_max........................: 4       min=4         max=4
+
+
+running (1m30.0s), 0/4 VUs, 237722 complete and 0 interrupted iterations
+default ✓ [======================================] 0/4 VUs  1m30s
+```
+
 ## wrk
 
 ### First run
@@ -256,6 +288,14 @@ Requests/sec:   2000.23
 Transfer/sec:      1.87MB
 ```
 
+### Getting maximum RSS size with /usr/bin/time
+
+```txt
+$ /usr/bin/time --verbose java -jar target/starter-1.0.0-SNAPSHOT-fat.jar
+	Percent of CPU this job got: 170%
+	Maximum resident set size (kbytes): 211056
+```
+
 ### Second run
 
 ```txt
@@ -282,64 +322,6 @@ Running 20s test @ http://localhost:8081/hello
 ----------------------------------------------------------
   40007 requests in 20.00s, 37.41MB read
 Requests/sec:   2000.34
-Transfer/sec:      1.87MB
-```
-
-### Reusing Request and Using UriTemplate - First Run
-
-```txt
-Running 20s test @ http://localhost:8081/hello
-  10 threads and 100 connections
-  Thread calibration: mean lat.: 2160.030ms, rate sampling interval: 5083ms
-  ...
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   190.37ms  378.36ms   1.43s    84.34%
-    Req/Sec   255.00      0.00   255.00    100.00%
-  Latency Distribution (HdrHistogram - Recorded Latency)
- 50.000%    1.54ms
- 75.000%  120.19ms
- 90.000%  887.81ms
- 99.000%    1.37s
- 99.900%    1.41s
- 99.990%    1.42s
- 99.999%    1.43s
-100.000%    1.43s
-
-#[Mean    =      190.368, StdDeviation   =      378.361]
-#[Max     =     1428.480, Total count    =        22730]
-#[Buckets =           27, SubBuckets     =         2048]
-----------------------------------------------------------
-  40010 requests in 20.00s, 37.41MB read
-Requests/sec:   2000.33
-Transfer/sec:      1.87MB
-```
-
-### Reusing Request and Using UriTemplate - Second Run
-
-```txt
-Running 20s test @ http://localhost:8081/hello
-  10 threads and 100 connections
-  Thread calibration: mean lat.: 1.408ms, rate sampling interval: 10ms
-  ...
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.25ms  475.40us   4.75ms   69.24%
-    Req/Sec   208.48     39.09   333.00     86.46%
-  Latency Distribution (HdrHistogram - Recorded Latency)
- 50.000%    1.23ms
- 75.000%    1.53ms
- 90.000%    1.85ms
- 99.000%    2.59ms
- 99.900%    3.73ms
- 99.990%    4.66ms
- 99.999%    4.75ms
-100.000%    4.75ms
-
-#[Mean    =        1.250, StdDeviation   =        0.475]
-#[Max     =        4.748, Total count    =        19900]
-#[Buckets =           27, SubBuckets     =         2048]
-----------------------------------------------------------
-  40010 requests in 20.00s, 37.41MB read
-Requests/sec:   2000.32
 Transfer/sec:      1.87MB
 ```
 
