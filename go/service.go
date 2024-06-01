@@ -4,11 +4,14 @@
 package main
 
 import (
+    "context"
     "encoding/json"
     "fmt"
     "io"
+    "os"
     "net/http"
     "sync/atomic"
+    "github.com/jackc/pgx/v5"
 )
 
 // Define a struct to hold client information
@@ -104,12 +107,19 @@ var clients = []Client{
 }
 
 func main() {
+    postgresURL := "postgres://admin:123@localhost:5432/bench"
+    _, err := pgx.Connect(context.Background(), postgresURL)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+        os.Exit(1)
+    }
+
     // Register the handler for the GET request
     http.HandleFunc("/hello", getServiceHandler)
 
     // Start the server on port 8080
     fmt.Println("Server listening on port 8081")
-    err := http.ListenAndServe(":8081", nil)
+    err = http.ListenAndServe(":8081", nil)
     if err != nil {
         panic(err)
     }

@@ -2,7 +2,7 @@ buildApi:
 	go build -o go/bin go/client-api.go
 
 buildGo:
-	go build -o go/bin go/service.go
+	cd go && go build -o go/bin go/service.go
 
 api:
 	./go/bin/client-api

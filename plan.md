@@ -22,12 +22,19 @@ https://smallrye.io/smallrye-mutiny/2.0.0/guides/combining-items/
 
 ## || Add Postgres database connection
 
+
+### || Go
+
 https://pkg.go.dev/database/sql
 
 https://golang.org/s/sqldrivers
 
 I used pgx (most stars xD)
 https://github.com/jackc/pgx
+
+https://www.reddit.com/r/golang/comments/162ieb1/need_suggestions_for_choosing_driver_for_postgres/
+
+https://pkg.go.dev/github.com/jackc/pgx/v4/pgxpool
 
 
 ## || Add Rust

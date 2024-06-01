@@ -1,4 +1,3 @@
 go build -o bin/ client-api.go
-
-./bin/client-api
+go build -o bin/ service.go
 
