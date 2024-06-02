@@ -150,6 +150,17 @@ func testPostgresDb() {
 	// }
 }
 
+func queryMovies(pool *pgxpool.Pool) []Movie {
+    rows, _ := pool.Query(context.Background(), "select title, year, cost, director from movie")
+    movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
+    if err != nil {
+        fmt.Printf("CollectRows error: %v", err)
+        return []Movie{}
+    }
+    return movies
+}
+
+// https://medium.com/@neelkanthsingh.jr/understanding-database-connection-pools-and-the-pgx-library-in-go-3087f3c5a0c
 func Config() *pgxpool.Config {
 	const defaultMaxConns = int32(25)
 	const defaultMinConns = int32(5)
@@ -207,6 +218,9 @@ func testPostgresDbPool() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Could not ping database")
 	}
+
+    movies := queryMovies(connPool)
+    fmt.Println(movies)
 }
 
 func main() {
