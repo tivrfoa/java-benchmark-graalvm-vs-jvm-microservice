@@ -16,10 +16,9 @@ public class DatabaseService {
     public ClientFavoriteDirectorMovies getClientFavoriteDirectorMovies() {
         var client = Client.getClient();
         List<Movie> movies = new ArrayList<>();
-        try {
-            var conn = movieDataSource.getConnection();
-            var stmt = conn.createStatement();
-            var resultSet = stmt.executeQuery("select title, year, cost, director from movie");
+        try (var conn = movieDataSource.getConnection();
+             var stmt = conn.createStatement();
+             var resultSet = stmt.executeQuery("select title, year, cost, director from movie")) {
             while (resultSet.next()) {
                 movies.add(new Movie(
                     resultSet.getString("title"),
@@ -38,8 +37,9 @@ public class DatabaseService {
             return new ClientFavoriteDirectorMovies(client, moviesByDirector.get(client.getFavoriteDirector()));
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(-1);
-            throw new RuntimeException("unreachable");
+            // System.exit(-1);
+            // throw new RuntimeException("unreachable");
+            return new ClientFavoriteDirectorMovies(null, null);
         }
     }
 }

@@ -22,6 +22,9 @@ https://smallrye.io/smallrye-mutiny/2.0.0/guides/combining-items/
 
 ## || Add Postgres database connection
 
+  - || Quarkus
+  - |x| Go
+
 Just one table with the 15 most expensive movies.
 
 Goal:
@@ -35,7 +38,19 @@ It's just for testing folks ... if want to retrieve the movies of a
 specific director, you would just pass the director for the `where`
 SQL condition.
 
-### || Go
+### Quarkus
+
+[Agroal Sorry, acquisition timeout](https://groups.google.com/g/quarkus-dev/c/uxCEs4Bxk0I)
+
+Nice Quarkus config!
+
+```properties
+quarkus.datasource.jdbc.enable-metrics=true
+```
+
+`2024-06-02 17:35:02,095 WARN  [io.agr.pool] (executor-thread-61) Datasource '<default>': JDBC resources leaked: 1 ResultSet(s) and 0 Statement(s)`
+
+### Go
 
 https://pkg.go.dev/database/sql
 
