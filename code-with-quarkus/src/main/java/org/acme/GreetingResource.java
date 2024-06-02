@@ -2,7 +2,6 @@ package org.acme;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -18,21 +17,6 @@ import jakarta.ws.rs.core.Response;
 public class GreetingResource {
     private static final List<LoanOption> NO_LOAN_OPTIONS_AVAILABLE = List.of();
 
-    private static AtomicInteger counter = new AtomicInteger(0);
-
-    private static Client[] clients = new Client[] {
-        new Client("A", 18, 3000),
-        new Client("B", 19, 3500),
-        new Client("C", 20, 4000),
-        new Client("D", 21, 4500),
-        new Client("E", 22, 5000),
-        new Client("F", 23, 6000),
-        new Client("G", 24, 7000),
-        new Client("H", 25, 8000),
-        new Client("I", 26, 9000),
-        new Client("J", 27, 10000),
-    };
-
     @Inject
     @RestClient
     MyRemoteService myRemoteService;
@@ -40,13 +24,12 @@ public class GreetingResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLoanOptions() {
-        int client_id = counter.getAndUpdate(value -> (value + 1) % 10);
-        var client = clients[client_id];
-        var phones = myRemoteService.getPhones(client_id);
+        var client = Client.getClient();
+        var phones = myRemoteService.getPhones(client.getId());
         client.setPhones(phones);
 
         if (client.getAge() >= 18) {
-            var address = myRemoteService.getAddress(client_id);
+            var address = myRemoteService.getAddress(client.getId());
             client.setAddress(address);
             var loanOptions = calculateLoanOptions(client);
             return Response.ok(new ResponseLoanOptions(client, loanOptions)).build();
@@ -64,13 +47,12 @@ public class GreetingResource {
     @Path("/NonBlocking")
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> getLoanOptionsNonBlocking() {
-        int client_id = counter.getAndUpdate(value -> (value + 1) % 10);
-        var client = clients[client_id];
-        var phonesFuture = myRemoteService.getPhonesAsync(client_id);
+        var client = Client.getClient();
+        var phonesFuture = myRemoteService.getPhonesAsync(client.getId());
         final Uni<Address> addressFuture;
         final List<LoanOption> loanOptions;
         if (client.getAge() >= 18) {
-            addressFuture = myRemoteService.getAddressAsync(client_id);
+            addressFuture = myRemoteService.getAddressAsync(client.getId());
             loanOptions = calculateLoanOptions(client);
         } else {
             // branch never taken
