@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+    // db "./database.go" // TODO move db logic to different file
 	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v5"
@@ -201,7 +202,7 @@ func Config() *pgxpool.Config {
 	return dbConfig
 }
 
-func testPostgresDbPool() {
+func createConnectionPool() *pgxpool.Pool {
 	// Create database connection
 	connPool, err := pgxpool.NewWithConfig(context.Background(), Config())
 	if err != nil {
@@ -219,23 +220,7 @@ func testPostgresDbPool() {
 		fmt.Fprintf(os.Stderr, "Could not ping database")
 	}
 
-    movies := queryMovies(connPool)
-    fmt.Println(movies)
-}
-
-func main() {
-	// testPostgresDb()
-    testPostgresDbPool()
-
-	// Register the handler for the GET request
-	http.HandleFunc("/hello", getServiceHandler)
-
-	// Start the server on port 8080
-	fmt.Println("Server listening on port 8081")
-	err := http.ListenAndServe(":8081", nil)
-	if err != nil {
-		panic(err)
-	}
+    return connPool
 }
 
 func getServiceHandler(w http.ResponseWriter, r *http.Request) {
@@ -350,4 +335,42 @@ func getClientId() uint32 {
 			return oldVal // Return the old value before increment
 		}
 	}
+}
+
+
+func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
+    // clientID := getClientId()
+    // client := clients[clientID]
+
+    movies := queryMovies(pool)
+
+    jsonResponse, err := json.Marshal(movies)
+    if err != nil {
+        fmt.Println("Error marshalling client data:", err)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.Write(jsonResponse)
+}
+
+func main() {
+    // testPostgresDb()
+    pool := createConnectionPool()
+    movies := queryMovies(pool)
+    fmt.Println(movies)
+
+    // Register the handler for the GET request
+    http.HandleFunc("/hello", getServiceHandler)
+    // http.HandleFunc("/db", dbHandler)
+    http.HandleFunc("/db", func(w http.ResponseWriter, r *http.Request) {
+    dbHandler(w, r, pool)
+  })
+
+    // Start the server on port 8080
+    fmt.Println("Server listening on port 8081")
+    err := http.ListenAndServe(":8081", nil)
+    if err != nil {
+        panic(err)
+    }
 }
