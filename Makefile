@@ -21,8 +21,14 @@ javaQuarkus:
 k6:
 	k6 run k6_bench1.js
 
-wrk:
+k6DB:
+	k6 run k6_bench_db.js
+
+wrkJSON:
 	wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello
+
+wrkDB:
+	wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db
 
 wrkQuarkusNonBlocking:
 	wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello/NonBlocking

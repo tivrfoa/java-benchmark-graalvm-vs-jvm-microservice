@@ -113,42 +113,6 @@ type Movie struct {
 	Director string  `pg:"director"`
 }
 
-func testPostgresDb() {
-	postgresURL := "postgres://admin:123@localhost:5432/bench"
-	conn, err := pgx.Connect(context.Background(), postgresURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-	defer conn.Close(context.Background())
-
-	// var name string
-	// err = conn.QueryRow(context.Background(), "select name from movie").Scan(&name)
-	// if err != nil {
-	//     fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-	// }
-	// fmt.Println(name)
-	rows, _ := conn.Query(context.Background(), "select title, year, cost, director from movie")
-	movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
-	if err != nil {
-		fmt.Printf("CollectRows error: %v", err)
-		return
-	}
-
-	// Create an empty map to store director names (set equivalent)
-	directorSet := map[string]struct{}{}
-
-	for _, movie := range movies {
-		// fmt.Printf("%s: %s\n", movie.Title, movie.Director)
-		directorSet[movie.Director] = struct{}{} // Empty struct for value (doesn't matter)
-	}
-
-	// fmt.Println(directorSet)
-	// for directorName, _ := range directorSet {
-	//     fmt.Println(directorName)
-	// }
-}
-
 func queryMovies(pool *pgxpool.Pool) []Movie {
 	rows, _ := pool.Query(context.Background(), "select title, year, cost, director from movie")
 	movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
@@ -318,19 +282,17 @@ func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
 }
 
 func main() {
-	// testPostgresDb()
 	pool := CreateConnectionPool()
 
-	// Register the handler for the GET request
 	http.HandleFunc("/hello", getServiceHandler)
-	// http.HandleFunc("/db", dbHandler)
 	http.HandleFunc("/db", func(w http.ResponseWriter, r *http.Request) {
 		dbHandler(w, r, pool)
 	})
 
-	// Start the server on port 8080
-	fmt.Println("Server listening on port 8081")
-	err := http.ListenAndServe(":8081", nil)
+    port := ":8081"
+
+	fmt.Printf("Server listening on port %s\n", port)
+	err := http.ListenAndServe(port, nil)
 	if err != nil {
 		panic(err)
 	}
