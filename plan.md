@@ -22,6 +22,30 @@ https://smallrye.io/smallrye-mutiny/2.0.0/guides/combining-items/
 
 ## || Add Postgres database connection
 
+Just one table with the 15 most expensive movies.
+
+Goal:
+	- test db driver performance
+	- test set
+	- test hash map
+
+1) query all rows
+2) create a set of directors
+3) create a `HashMap<Director, List<Movie>>`
+
+It's just for testing folks ... if want to retrieve the movies of a
+specific director, you would just pass the director for the `where`
+SQL condition.
+
+You also don't need a set. You could do:
+
+```java
+var map = new HashMap<Director, ArrayList<Movie>>();
+for (var movie : movies) {
+	var l = map.computeIfAbsent(movie.director, d -> new ArrayList<>());
+	l.add(movie);
+}
+```
 
 ### || Go
 
