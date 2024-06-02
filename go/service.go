@@ -8,10 +8,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v5"
+    "github.com/jackc/pgx/v5/pgxpool"
 	"io"
 	"net/http"
 	"os"
 	"sync/atomic"
+    "time"
 )
 
 // Define a struct to hold client information
@@ -148,45 +150,68 @@ func testPostgresDb() {
 	// }
 }
 
+func Config() *pgxpool.Config {
+	const defaultMaxConns = int32(25)
+	const defaultMinConns = int32(5)
+	const defaultMaxConnLifetime = time.Hour
+	const defaultMaxConnIdleTime = time.Minute * 30
+	const defaultHealthCheckPeriod = time.Minute
+	const defaultConnectTimeout = time.Second * 5
+
+	// Your own Database URL
+	const DATABASE_URL string = "postgres://admin:123@localhost:5432/bench"
+
+	dbConfig, err := pgxpool.ParseConfig(DATABASE_URL)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to create a config, error: ", err)
+	}
+
+	dbConfig.MaxConns = defaultMaxConns
+	dbConfig.MinConns = defaultMinConns
+	dbConfig.MaxConnLifetime = defaultMaxConnLifetime
+	dbConfig.MaxConnIdleTime = defaultMaxConnIdleTime
+	dbConfig.HealthCheckPeriod = defaultHealthCheckPeriod
+	dbConfig.ConnConfig.ConnectTimeout = defaultConnectTimeout
+
+	dbConfig.BeforeAcquire = func(ctx context.Context, c *pgx.Conn) bool {
+		fmt.Println("Before acquiring the connection pool to the database!!")
+		return true
+	}
+
+	dbConfig.AfterRelease = func(c *pgx.Conn) bool {
+		fmt.Println("After releasing the connection pool to the database!!")
+		return true
+	}
+
+	dbConfig.BeforeClose = func(c *pgx.Conn) {
+		fmt.Println("Closed the connection pool to the database!!")
+	}
+
+	return dbConfig
+}
+
 func testPostgresDbPool() {
-	postgresURL := "postgres://admin:123@localhost:5432/bench"
-	pool, err := pgxpool.New(context.Background(), postgresURL)
-	// conn, err := pgx.Connect(context.Background(), postgresURL)
+	// Create database connection
+	connPool, err := pgxpool.NewWithConfig(context.Background(), Config())
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
+		fmt.Fprintf(os.Stderr, "Error while creating connection to the database!!")
 	}
-	defer conn.Close(context.Background())
 
-	// var name string
-	// err = conn.QueryRow(context.Background(), "select name from movie").Scan(&name)
-	// if err != nil {
-	//     fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-	// }
-	// fmt.Println(name)
-	rows, _ := conn.Query(context.Background(), "select title, year, cost, director from movie")
-	movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
+	connection, err := connPool.Acquire(context.Background())
 	if err != nil {
-		fmt.Printf("CollectRows error: %v", err)
-		return
+		fmt.Fprintf(os.Stderr, "Error while acquiring connection from the database pool!!")
 	}
+	defer connection.Release()
 
-	// Create an empty map to store director names (set equivalent)
-	directorSet := map[string]struct{}{}
-
-	for _, movie := range movies {
-		// fmt.Printf("%s: %s\n", movie.Title, movie.Director)
-		directorSet[movie.Director] = struct{}{} // Empty struct for value (doesn't matter)
+	err = connection.Ping(context.Background())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not ping database")
 	}
-
-	// fmt.Println(directorSet)
-	// for directorName, _ := range directorSet {
-	//     fmt.Println(directorName)
-	// }
 }
 
 func main() {
-	testPostgresDb()
+	// testPostgresDb()
+    testPostgresDbPool()
 
 	// Register the handler for the GET request
 	http.HandleFunc("/hello", getServiceHandler)

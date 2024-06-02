@@ -92,5 +92,7 @@ https://stackoverflow.com/questions/61704842/how-to-scan-a-queryrow-into-a-struc
 
 https://stackoverflow.com/questions/31946344/why-does-go-treat-a-postgresql-numeric-decimal-columns-as-uint8
 
+https://medium.com/@neelkanthsingh.jr/understanding-database-connection-pools-and-the-pgx-library-in-go-3087f3c5a0c
+
 
 ## || Add Rust
