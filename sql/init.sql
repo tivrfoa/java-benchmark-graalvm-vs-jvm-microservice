@@ -1,9 +1,9 @@
 drop table if exists movie;
 
 CREATE TABLE movie (
-    title    text not null,
+    title text not null,
     year smallint,
-    cost decimal(9, 2),
+    cost numeric(9, 2),
     director text
 );
 

@@ -106,6 +106,13 @@ var clients = []Client{
   NewClient("J", 27, 10000),
 }
 
+type Movie struct {
+  Title    string  `pg:"title,notnull"`
+  Year     int16   `pg:"year"`
+  Cost     float64 `pg:"cost"`
+  Director string  `pg:"director"`
+}
+
 func testPostgresDb() {
     postgresURL := "postgres://admin:123@localhost:5432/bench"
     conn, err := pgx.Connect(context.Background(), postgresURL)
@@ -115,12 +122,22 @@ func testPostgresDb() {
     }
     defer conn.Close(context.Background())
 
-    var name string
-    err = conn.QueryRow(context.Background(), "select name from movie").Scan(&name)
+    // var name string
+    // err = conn.QueryRow(context.Background(), "select name from movie").Scan(&name)
+    // if err != nil {
+    //     fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+    // }
+    // fmt.Println(name)
+    rows, _ := conn.Query(context.Background(), "select title, year, cost, director from movie")
+    movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
     if err != nil {
-        fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+        fmt.Printf("CollectRows error: %v", err)
+        return
     }
-    fmt.Println(name)
+
+    for _, m := range movies {
+        fmt.Printf("%s: %s\n", m.Title, m.Director)
+    }
 }
 
 func main() {

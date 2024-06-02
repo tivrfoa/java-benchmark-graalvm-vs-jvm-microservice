@@ -60,5 +60,11 @@ https://www.reddit.com/r/golang/comments/162ieb1/need_suggestions_for_choosing_d
 
 https://pkg.go.dev/github.com/jackc/pgx/v4/pgxpool
 
+https://github.com/jackc/pgx/wiki/Numeric-and-decimal-support
+
+https://stackoverflow.com/questions/61704842/how-to-scan-a-queryrow-into-a-struct-with-pgx
+
+https://stackoverflow.com/questions/31946344/why-does-go-treat-a-postgresql-numeric-decimal-columns-as-uint8
+
 
 ## || Add Rust
