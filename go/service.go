@@ -4,10 +4,8 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"io"
 	"net/http"
@@ -64,16 +62,6 @@ var clients = []Client{
 	NewClient("H", 25, 8000, "Gore Verbinski"),
 	NewClient("I", 26, 9000, "Zack Snyder & Joss Whedon"),
 	NewClient("J", 27, 10000, "Rian Johnson"),
-}
-
-func queryMovies(pool *pgxpool.Pool) []Movie {
-	rows, _ := pool.Query(context.Background(), "select title, year, cost, director from movie")
-	movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
-	if err != nil {
-		fmt.Printf("CollectRows error: %v", err)
-		return []Movie{}
-	}
-	return movies
 }
 
 func getServiceHandler(w http.ResponseWriter, r *http.Request) {

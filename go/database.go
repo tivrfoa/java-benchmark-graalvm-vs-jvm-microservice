@@ -70,3 +70,13 @@ func CreateConnectionPool() *pgxpool.Pool {
 
 	return connPool
 }
+
+func queryMovies(pool *pgxpool.Pool) []Movie {
+	rows, _ := pool.Query(context.Background(), "select title, year, cost, director from movie")
+	movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
+	if err != nil {
+		fmt.Printf("CollectRows error: %v", err)
+		return []Movie{}
+	}
+	return movies
+}
