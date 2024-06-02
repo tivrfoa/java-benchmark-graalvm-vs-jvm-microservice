@@ -1,6 +1,7 @@
 package org.acme;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import io.agroal.api.AgroalDataSource;
@@ -12,7 +13,8 @@ public class DatabaseService {
     @Inject
     AgroalDataSource movieDataSource;
 
-    public void printMovies() {
+    public ClientFavoriteDirectorMovies getClientFavoriteDirectorMovies() {
+        var client = Client.getClient();
         List<Movie> movies = new ArrayList<>();
         try {
             var conn = movieDataSource.getConnection();
@@ -26,9 +28,18 @@ public class DatabaseService {
                     resultSet.getString("director")
                 ));
             }
-            System.out.println(movies);
+            // System.out.println(movies);
+
+            HashMap<String, List<Movie>> moviesByDirector = new HashMap<>();
+            for (var movie : movies) {
+                List<Movie> l = moviesByDirector.computeIfAbsent(movie.director(), d -> new ArrayList<>());
+	            l.add(movie);
+            }
+            return new ClientFavoriteDirectorMovies(client, moviesByDirector.get(client.getFavoriteDirector()));
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(-1);
+            throw new RuntimeException("unreachable");
         }
     }
 }

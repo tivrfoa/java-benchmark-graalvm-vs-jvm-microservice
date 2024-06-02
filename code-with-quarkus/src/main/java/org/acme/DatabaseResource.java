@@ -16,7 +16,6 @@ public class DatabaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMovies() {
-        databaseService.printMovies();
-        return Response.ok().build();
+        return Response.ok(databaseService.getClientFavoriteDirectorMovies()).build();
     }
 }

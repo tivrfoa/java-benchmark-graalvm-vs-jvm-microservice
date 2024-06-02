@@ -35,14 +35,6 @@ It's just for testing folks ... if want to retrieve the movies of a
 specific director, you would just pass the director for the `where`
 SQL condition.
 
-```java
-var map = new HashMap<Director, ArrayList<Movie>>();
-for (var movie : movies) {
-	var l = map.computeIfAbsent(movie.director, d -> new ArrayList<>());
-	l.add(movie);
-}
-```
-
 ### || Go
 
 https://pkg.go.dev/database/sql
