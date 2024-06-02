@@ -47,6 +47,32 @@ for (var movie : movies) {
 }
 ```
 
+Well ... Go does not have a Set ... but Java also doesn't! xD
+
+Kidding. It has, but it's backed by a HashMap:
+
+src/java.base/share/classes/java/util/HashSet.java
+
+```java
+    transient HashMap<E,Object> map;
+
+    public HashSet() {
+        map = new HashMap<>();
+    }
+
+    public boolean add(E e) {
+        return map.put(e, PRESENT)==null;
+    }
+
+```
+
+I'll do like this in Go (credit to Gemini):
+
+```go
+  // Create an empty map to store director names (set equivalent)
+  directorSet := map[string]struct{}{}
+```
+
 ### || Go
 
 https://pkg.go.dev/database/sql

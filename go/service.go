@@ -135,9 +135,18 @@ func testPostgresDb() {
         return
     }
 
-    for _, m := range movies {
-        fmt.Printf("%s: %s\n", m.Title, m.Director)
+      // Create an empty map to store director names (set equivalent)
+    directorSet := map[string]struct{}{}
+
+    for _, movie := range movies {
+        // fmt.Printf("%s: %s\n", movie.Title, movie.Director)
+        directorSet[movie.Director] = struct{}{} // Empty struct for value (doesn't matter)
     }
+
+    // fmt.Println(directorSet)
+    // for directorName, _ := range directorSet {
+    //     fmt.Println(directorName)
+    // }
 }
 
 func main() {
