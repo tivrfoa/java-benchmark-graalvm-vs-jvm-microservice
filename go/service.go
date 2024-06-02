@@ -11,21 +11,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"io"
 	"net/http"
-	"os"
 	"sync/atomic"
 )
 
-// Define a struct to hold client information
-type Client struct {
-	// ID          uint32  `json:"id"`
-	Name             string  `json:"name"`
-	Age              uint32  `json:"age"`
-	GuardianID       uint32  `json:"guardianID"`
-	MonthSalary      float64 `json:"monthSalary"`
-	Address          Address `json:"address"`
-	Phones           []Phone `json:"phones"`
-	FavoriteDirector string
-}
 
 func NewClient(name string, age uint32, monthSalary float64, favoriteDirector string) Client {
 	return Client{
@@ -34,28 +22,6 @@ func NewClient(name string, age uint32, monthSalary float64, favoriteDirector st
 		MonthSalary:      monthSalary,
 		FavoriteDirector: favoriteDirector,
 	}
-}
-
-// Address struct to hold address information (same as before)
-type Address struct {
-	Street  string `json:"street"`
-	Number  int    `json:"number"`
-	State   string `json:"state"`
-	Country string `json:"country"`
-}
-
-// Phone struct to hold phone number information (same as before)
-type Phone struct {
-	DDD    int `json:"ddd"`
-	Number int `json:"number"`
-}
-
-type LoanOption struct {
-	Years int `json:"years"`
-
-	// Gemini suggested loanAmount, which is better! But let's keep the same as the Java version.
-	Loan               float64 `json:"loan"`
-	MonthlyInstallment float64 `json:"monthlyInstallment"`
 }
 
 func NewLoanOption(years int, loan float64, monthlyInstallment float64) LoanOption {
@@ -76,11 +42,6 @@ func calculateLoanOptions(client Client) []LoanOption {
 		options = append(options, NewLoanOption(year, loanAmount, monthlyInstallment))
 	}
 	return options
-}
-
-type ResponseLoanOptions struct {
-	Client      Client       `json:"client"`
-	LoanOptions []LoanOption `json:"loanOptions"`
 }
 
 func NewResponseLoanOptions(client Client, loanOptions []LoanOption) ResponseLoanOptions {
@@ -106,13 +67,6 @@ var clients = []Client{
 	NewClient("J", 27, 10000, "Rian Johnson"),
 }
 
-type Movie struct {
-	Title    string  `pg:"title,notnull"`
-	Year     int16   `pg:"year"`
-	Cost     float64 `pg:"cost"`
-	Director string  `pg:"director"`
-}
-
 func queryMovies(pool *pgxpool.Pool) []Movie {
 	rows, _ := pool.Query(context.Background(), "select title, year, cost, director from movie")
 	movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
@@ -122,7 +76,6 @@ func queryMovies(pool *pgxpool.Pool) []Movie {
 	}
 	return movies
 }
-
 
 func getServiceHandler(w http.ResponseWriter, r *http.Request) {
 	clientID := getClientId()
@@ -238,11 +191,6 @@ func getClientId() uint32 {
 	}
 }
 
-type ClientFavoriteDirectorMovies struct {
-	Client Client  `json:"client"`
-	Movies []Movie `json:"movies"`
-}
-
 func getClientFavoriteDirectorMovies(client Client, movies []Movie) ClientFavoriteDirectorMovies {
 	// create a map just for performance test
 	moviesByDirector := make(map[string][]Movie)
@@ -250,14 +198,6 @@ func getClientFavoriteDirectorMovies(client Client, movies []Movie) ClientFavori
 	for _, movie := range movies {
 		moviesByDirector[movie.Director] = append(moviesByDirector[movie.Director], movie)
 	}
-
-	// fmt.Println("Movies grouped by director:")
-	// for director, movies := range moviesByDirector {
-	// 	fmt.Println("Director:", director)
-	// 	for _, movie := range movies {
-	// 		fmt.Printf("  - Title: %s, Year: %d\n", movie.Title, movie.Year)
-	// 	}
-	// }
 
 	return ClientFavoriteDirectorMovies{
 		Client: client,
