@@ -106,20 +106,32 @@ var clients = []Client{
   NewClient("J", 27, 10000),
 }
 
-func main() {
+func testPostgresDb() {
     postgresURL := "postgres://admin:123@localhost:5432/bench"
-    _, err := pgx.Connect(context.Background(), postgresURL)
+    conn, err := pgx.Connect(context.Background(), postgresURL)
     if err != nil {
         fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
         os.Exit(1)
     }
+    defer conn.Close(context.Background())
+
+    var name string
+    err = conn.QueryRow(context.Background(), "select name from movie").Scan(&name)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+    }
+    fmt.Println(name)
+}
+
+func main() {
+    testPostgresDb()
 
     // Register the handler for the GET request
     http.HandleFunc("/hello", getServiceHandler)
 
     // Start the server on port 8080
     fmt.Println("Server listening on port 8081")
-    err = http.ListenAndServe(":8081", nil)
+    err := http.ListenAndServe(":8081", nil)
     if err != nil {
         panic(err)
     }
