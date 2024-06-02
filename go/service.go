@@ -14,7 +14,6 @@ import (
 	"sync/atomic"
 )
 
-
 func NewClient(name string, age uint32, monthSalary float64, favoriteDirector string) Client {
 	return Client{
 		Name:             name,
@@ -229,8 +228,7 @@ func main() {
 		dbHandler(w, r, pool)
 	})
 
-    port := ":8081"
-
+	port := ":8081"
 	fmt.Printf("Server listening on port %s\n", port)
 	err := http.ListenAndServe(port, nil)
 	if err != nil {
