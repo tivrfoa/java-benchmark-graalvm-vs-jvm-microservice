@@ -1,14 +1,14 @@
 buildApi:
-	go build -o go/bin go/client-api.go
+	go build -o bin/ client-api/client-api.go
 
 buildGo:
-	cd go && go build -o go/bin go/service.go
+	cd go && go build -o bin/
 
 api:
-	./go/bin/client-api
+	./bin/client-api
 
 goService:
-	./go/bin/service
+	./go/bin/acme
 
 javaQuarkus:
 	java -jar code-with-quarkus/target/quarkus-app/quarkus-run.jar

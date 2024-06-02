@@ -5,7 +5,6 @@ package main
 
 import (
 	"context"
-	// db "./database.go" // TODO move db logic to different file
 	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v5"
@@ -14,7 +13,6 @@ import (
 	"net/http"
 	"os"
 	"sync/atomic"
-	"time"
 )
 
 // Define a struct to hold client information
@@ -161,67 +159,6 @@ func queryMovies(pool *pgxpool.Pool) []Movie {
 	return movies
 }
 
-// https://medium.com/@neelkanthsingh.jr/understanding-database-connection-pools-and-the-pgx-library-in-go-3087f3c5a0c
-func Config() *pgxpool.Config {
-	const defaultMaxConns = int32(25)
-	const defaultMinConns = int32(5)
-	const defaultMaxConnLifetime = time.Hour
-	const defaultMaxConnIdleTime = time.Minute * 30
-	const defaultHealthCheckPeriod = time.Minute
-	const defaultConnectTimeout = time.Second * 5
-
-	// Your own Database URL
-	const DATABASE_URL string = "postgres://admin:123@localhost:5432/bench"
-
-	dbConfig, err := pgxpool.ParseConfig(DATABASE_URL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create a config, error: ", err)
-	}
-
-	dbConfig.MaxConns = defaultMaxConns
-	dbConfig.MinConns = defaultMinConns
-	dbConfig.MaxConnLifetime = defaultMaxConnLifetime
-	dbConfig.MaxConnIdleTime = defaultMaxConnIdleTime
-	dbConfig.HealthCheckPeriod = defaultHealthCheckPeriod
-	dbConfig.ConnConfig.ConnectTimeout = defaultConnectTimeout
-
-	dbConfig.BeforeAcquire = func(ctx context.Context, c *pgx.Conn) bool {
-		fmt.Println("Before acquiring the connection pool to the database!!")
-		return true
-	}
-
-	dbConfig.AfterRelease = func(c *pgx.Conn) bool {
-		fmt.Println("After releasing the connection pool to the database!!")
-		return true
-	}
-
-	dbConfig.BeforeClose = func(c *pgx.Conn) {
-		fmt.Println("Closed the connection pool to the database!!")
-	}
-
-	return dbConfig
-}
-
-func createConnectionPool() *pgxpool.Pool {
-	// Create database connection
-	connPool, err := pgxpool.NewWithConfig(context.Background(), Config())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error while creating connection to the database!!")
-	}
-
-	connection, err := connPool.Acquire(context.Background())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error while acquiring connection from the database pool!!")
-	}
-	defer connection.Release()
-
-	err = connection.Ping(context.Background())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not ping database")
-	}
-
-	return connPool
-}
 
 func getServiceHandler(w http.ResponseWriter, r *http.Request) {
 	clientID := getClientId()
@@ -343,7 +280,6 @@ type ClientFavoriteDirectorMovies struct {
 }
 
 func getClientFavoriteDirectorMovies(client Client, movies []Movie) ClientFavoriteDirectorMovies {
-	fmt.Println(client.Name)
 	// create a map just for performance test
 	moviesByDirector := make(map[string][]Movie)
 
@@ -351,20 +287,17 @@ func getClientFavoriteDirectorMovies(client Client, movies []Movie) ClientFavori
 		moviesByDirector[movie.Director] = append(moviesByDirector[movie.Director], movie)
 	}
 
-	fmt.Println("Movies grouped by director:")
-	for director, movies := range moviesByDirector {
-		fmt.Println("Director:", director)
-		for _, movie := range movies {
-			fmt.Printf("  - Title: %s, Year: %d\n", movie.Title, movie.Year)
-		}
-	}
-
-	favoriteMovies := moviesByDirector[client.FavoriteDirector]
-	fmt.Println(favoriteMovies)
+	// fmt.Println("Movies grouped by director:")
+	// for director, movies := range moviesByDirector {
+	// 	fmt.Println("Director:", director)
+	// 	for _, movie := range movies {
+	// 		fmt.Printf("  - Title: %s, Year: %d\n", movie.Title, movie.Year)
+	// 	}
+	// }
 
 	return ClientFavoriteDirectorMovies{
 		Client: client,
-		Movies: favoriteMovies,
+		Movies: moviesByDirector[client.FavoriteDirector],
 	}
 }
 
@@ -386,7 +319,7 @@ func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
 
 func main() {
 	// testPostgresDb()
-	pool := createConnectionPool()
+	pool := CreateConnectionPool()
 
 	// Register the handler for the GET request
 	http.HandleFunc("/hello", getServiceHandler)

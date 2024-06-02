@@ -1,4 +1,4 @@
-module org.acme/service
+module acme
 
 go 1.22.0
 
