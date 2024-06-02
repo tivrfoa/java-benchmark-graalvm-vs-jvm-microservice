@@ -20,21 +20,21 @@ import (
 // Define a struct to hold client information
 type Client struct {
 	// ID          uint32  `json:"id"`
-	Name        string  `json:"name"`
-	Age         uint32  `json:"age"`
-	GuardianID  uint32  `json:"guardianID"`
-	MonthSalary float64 `json:"monthSalary"`
-	Address     Address `json:"address"`
-	Phones      []Phone `json:"phones"`
+	Name             string  `json:"name"`
+	Age              uint32  `json:"age"`
+	GuardianID       uint32  `json:"guardianID"`
+	MonthSalary      float64 `json:"monthSalary"`
+	Address          Address `json:"address"`
+	Phones           []Phone `json:"phones"`
+	FavoriteDirector string
 }
 
-func NewClient(name string, age uint32, monthSalary float64) Client {
+func NewClient(name string, age uint32, monthSalary float64, favoriteDirector string) Client {
 	return Client{
-		// Set the relevant fields based on the provided arguments
-		Name:        name,
-		Age:         age,
-		MonthSalary: monthSalary,
-		// You can also set default values for other fields here if needed
+		Name:             name,
+		Age:              age,
+		MonthSalary:      monthSalary,
+		FavoriteDirector: favoriteDirector,
 	}
 }
 
@@ -96,16 +96,16 @@ func NewResponseLoanOptions(client Client, loanOptions []LoanOption) ResponseLoa
 var NoLoanOptionsAvailable = []LoanOption{} // Empty slice
 
 var clients = []Client{
-	NewClient("A", 18, 3000),
-	NewClient("B", 19, 3500),
-	NewClient("C", 20, 4000),
-	NewClient("D", 21, 4500),
-	NewClient("E", 22, 5000),
-	NewClient("F", 23, 6000),
-	NewClient("G", 24, 7000),
-	NewClient("H", 25, 8000),
-	NewClient("I", 26, 9000),
-	NewClient("J", 27, 10000),
+	NewClient("A", 18, 3000, "J J Abrams"),
+	NewClient("B", 19, 3500, "Louis Leterrier"),
+	NewClient("C", 20, 4000, "Rob Marshall"),
+	NewClient("D", 21, 4500, "Joss Whedon"),
+	NewClient("E", 22, 5000, "Anthony Russo & Joe Russo"),
+	NewClient("F", 23, 6000, "Sam Raimi"),
+	NewClient("G", 24, 7000, "James Mangold"),
+	NewClient("H", 25, 8000, "Gore Verbinski"),
+	NewClient("I", 26, 9000, "Zack Snyder & Joss Whedon"),
+	NewClient("J", 27, 10000, "Rian Johnson"),
 }
 
 type Movie struct {
@@ -337,13 +337,44 @@ func getClientId() uint32 {
 	}
 }
 
-func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
-	// clientID := getClientId()
-	// client := clients[clientID]
+type ClientFavoriteDirectorMovies struct {
+	Client Client  `json:"client"`
+	Movies []Movie `json:"movies"`
+}
 
+func getClientFavoriteDirectorMovies(client Client, movies []Movie) ClientFavoriteDirectorMovies {
+	fmt.Println(client.Name)
+	// create a map just for performance test
+	moviesByDirector := make(map[string][]Movie)
+
+	for _, movie := range movies {
+		moviesByDirector[movie.Director] = append(moviesByDirector[movie.Director], movie)
+	}
+
+	fmt.Println("Movies grouped by director:")
+	for director, movies := range moviesByDirector {
+		fmt.Println("Director:", director)
+		for _, movie := range movies {
+			fmt.Printf("  - Title: %s, Year: %d\n", movie.Title, movie.Year)
+		}
+	}
+
+	favoriteMovies := moviesByDirector[client.FavoriteDirector]
+	fmt.Println(favoriteMovies)
+
+	return ClientFavoriteDirectorMovies{
+		Client: client,
+		Movies: favoriteMovies,
+	}
+}
+
+func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
+	client := clients[getClientId()]
 	movies := queryMovies(pool)
 
-	jsonResponse, err := json.Marshal(movies)
+	clientFavoriteDirectorMovies := getClientFavoriteDirectorMovies(client, movies)
+
+	jsonResponse, err := json.Marshal(clientFavoriteDirectorMovies)
 	if err != nil {
 		fmt.Println("Error marshalling client data:", err)
 		return
