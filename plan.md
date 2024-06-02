@@ -1,5 +1,8 @@
 # Compare Java GraalVM Native Image x OpenJDK x OpenJ9 AOT + class data sharing x Go
 
+	- |x| Compare JSON endpoint
+	- || Compare database endpoint
+	- || Comparing running inside Docker with restricted resources
 
 
 ## |x| Add Quarkus Reactive
@@ -23,6 +26,8 @@ https://smallrye.io/smallrye-mutiny/2.0.0/guides/combining-items/
 ## || Add Postgres database connection
 
   - || Quarkus
+    - |x| Agroal jdbc
+    - || Hibernate
   - |x| Go
 
 Just one table with the 15 most expensive movies.
@@ -49,6 +54,10 @@ quarkus.datasource.jdbc.enable-metrics=true
 ```
 
 `2024-06-02 17:35:02,095 WARN  [io.agr.pool] (executor-thread-61) Datasource '<default>': JDBC resources leaked: 1 ResultSet(s) and 0 Statement(s)`
+
+https://quarkus.io/guides/hibernate-reactive-panache
+
+https://quarkus.io/guides/reactive-sql-clients
 
 ### Go
 

@@ -27,7 +27,6 @@ public class DatabaseService {
                     resultSet.getString("director")
                 ));
             }
-            // System.out.println(movies);
 
             HashMap<String, List<Movie>> moviesByDirector = new HashMap<>();
             for (var movie : movies) {
@@ -37,8 +36,6 @@ public class DatabaseService {
             return new ClientFavoriteDirectorMovies(client, moviesByDirector.get(client.getFavoriteDirector()));
         } catch (Exception e) {
             e.printStackTrace();
-            // System.exit(-1);
-            // throw new RuntimeException("unreachable");
             return new ClientFavoriteDirectorMovies(null, null);
         }
     }

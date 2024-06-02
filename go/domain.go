@@ -13,7 +13,7 @@ type Phone struct {
 }
 
 type Client struct {
-	// ID          uint32  `json:"id"`
+	ID               uint32  `json:"id"`
 	Name             string  `json:"name"`
 	Age              uint32  `json:"age"`
 	GuardianID       uint32  `json:"guardianID"`

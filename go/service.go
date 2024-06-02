@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"io"
+    "os"
 	"net/http"
 	"sync/atomic"
 )
@@ -51,24 +52,40 @@ func NewResponseLoanOptions(client Client, loanOptions []LoanOption) ResponseLoa
 // Define a constant slice of LoanOption to represent no loan options
 var NoLoanOptionsAvailable = []LoanOption{} // Empty slice
 
-var clients = []Client{
-	NewClient("A", 18, 3000, "J J Abrams"),
-	NewClient("B", 19, 3500, "Louis Leterrier"),
-	NewClient("C", 20, 4000, "Rob Marshall"),
-	NewClient("D", 21, 4500, "Joss Whedon"),
-	NewClient("E", 22, 5000, "Anthony Russo & Joe Russo"),
-	NewClient("F", 23, 6000, "Sam Raimi"),
-	NewClient("G", 24, 7000, "James Mangold"),
-	NewClient("H", 25, 8000, "Gore Verbinski"),
-	NewClient("I", 26, 9000, "Zack Snyder & Joss Whedon"),
-	NewClient("J", 27, 10000, "Rian Johnson"),
+func getClient() Client {
+	client_id := getClientId()
+	switch client_id {
+	case 0:
+		return NewClient("A", 18, 3000, "J J Abrams")
+	case 1:
+		return NewClient("B", 19, 3500, "Louis Leterrier")
+	case 2:
+		return NewClient("C", 20, 4000, "Rob Marshall")
+	case 3:
+		return NewClient("D", 21, 4500, "Joss Whedon")
+	case 4:
+		return NewClient("E", 22, 5000, "Anthony Russo & Joe Russo")
+	case 5:
+		return NewClient("F", 23, 6000, "Sam Raimi")
+	case 6:
+		return NewClient("G", 24, 7000, "James Mangold")
+	case 7:
+		return NewClient("H", 25, 8000, "Gore Verbinski")
+	case 8:
+		return NewClient("I", 26, 9000, "Zack Snyder & Joss Whedon")
+	case 9:
+		return NewClient("J", 27, 10000, "Rian Johnson")
+	default:
+		fmt.Printf("bad client_id: %d\n", client_id)
+        os.Exit(-1)
+        return NewClient("Z", 27, 10000, "INVALID_STATE")
+	}
 }
 
 func getServiceHandler(w http.ResponseWriter, r *http.Request) {
-	clientID := getClientId()
-	client := clients[clientID]
+	client := getClient()
 
-	phones, err := getPhones(clientID)
+	phones, err := getPhones(client.ID)
 	if err != nil {
 		fmt.Println("Error fetching phones:", err)
 		return
@@ -77,7 +94,7 @@ func getServiceHandler(w http.ResponseWriter, r *http.Request) {
 
 	loanOptions := NoLoanOptionsAvailable
 	if client.Age >= 18 {
-		address, err := getAddress(clientID)
+		address, err := getAddress(client.ID)
 		if err != nil {
 			fmt.Println("Error fetching address:", err)
 			return
@@ -193,7 +210,7 @@ func getClientFavoriteDirectorMovies(client Client, movies []Movie) ClientFavori
 }
 
 func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
-	client := clients[getClientId()]
+	client := getClient()
 	movies := queryMovies(pool)
 
 	clientFavoriteDirectorMovies := getClientFavoriteDirectorMovies(client, movies)
