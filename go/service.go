@@ -5,16 +5,16 @@ package main
 
 import (
 	"context"
-    // db "./database.go" // TODO move db logic to different file
+	// db "./database.go" // TODO move db logic to different file
 	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v5"
-    "github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"io"
 	"net/http"
 	"os"
 	"sync/atomic"
-    "time"
+	"time"
 )
 
 // Define a struct to hold client information
@@ -152,13 +152,13 @@ func testPostgresDb() {
 }
 
 func queryMovies(pool *pgxpool.Pool) []Movie {
-    rows, _ := pool.Query(context.Background(), "select title, year, cost, director from movie")
-    movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
-    if err != nil {
-        fmt.Printf("CollectRows error: %v", err)
-        return []Movie{}
-    }
-    return movies
+	rows, _ := pool.Query(context.Background(), "select title, year, cost, director from movie")
+	movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
+	if err != nil {
+		fmt.Printf("CollectRows error: %v", err)
+		return []Movie{}
+	}
+	return movies
 }
 
 // https://medium.com/@neelkanthsingh.jr/understanding-database-connection-pools-and-the-pgx-library-in-go-3087f3c5a0c
@@ -220,7 +220,7 @@ func createConnectionPool() *pgxpool.Pool {
 		fmt.Fprintf(os.Stderr, "Could not ping database")
 	}
 
-    return connPool
+	return connPool
 }
 
 func getServiceHandler(w http.ResponseWriter, r *http.Request) {
@@ -337,40 +337,37 @@ func getClientId() uint32 {
 	}
 }
 
-
 func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
-    // clientID := getClientId()
-    // client := clients[clientID]
+	// clientID := getClientId()
+	// client := clients[clientID]
 
-    movies := queryMovies(pool)
+	movies := queryMovies(pool)
 
-    jsonResponse, err := json.Marshal(movies)
-    if err != nil {
-        fmt.Println("Error marshalling client data:", err)
-        return
-    }
+	jsonResponse, err := json.Marshal(movies)
+	if err != nil {
+		fmt.Println("Error marshalling client data:", err)
+		return
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonResponse)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonResponse)
 }
 
 func main() {
-    // testPostgresDb()
-    pool := createConnectionPool()
-    movies := queryMovies(pool)
-    fmt.Println(movies)
+	// testPostgresDb()
+	pool := createConnectionPool()
 
-    // Register the handler for the GET request
-    http.HandleFunc("/hello", getServiceHandler)
-    // http.HandleFunc("/db", dbHandler)
-    http.HandleFunc("/db", func(w http.ResponseWriter, r *http.Request) {
-    dbHandler(w, r, pool)
-  })
+	// Register the handler for the GET request
+	http.HandleFunc("/hello", getServiceHandler)
+	// http.HandleFunc("/db", dbHandler)
+	http.HandleFunc("/db", func(w http.ResponseWriter, r *http.Request) {
+		dbHandler(w, r, pool)
+	})
 
-    // Start the server on port 8080
-    fmt.Println("Server listening on port 8081")
-    err := http.ListenAndServe(":8081", nil)
-    if err != nil {
-        panic(err)
-    }
+	// Start the server on port 8080
+	fmt.Println("Server listening on port 8081")
+	err := http.ListenAndServe(":8081", nil)
+	if err != nil {
+		panic(err)
+	}
 }
