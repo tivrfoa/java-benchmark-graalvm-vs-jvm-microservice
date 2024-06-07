@@ -21,6 +21,15 @@ https://dzone.com/articles/invoking-rest-apis-asynchronously-with-quarkus
 
 https://smallrye.io/smallrye-mutiny/2.0.0/guides/combining-items/
 
+https://www.reddit.com/r/java/comments/fxejpo/reactor_vs_rxjava3_2020_edition/
+
+https://www.reddit.com/r/java/comments/xf4pl7/reactor_bad_loom_good_but_how_will_the_landscape/
+
+[JEP 428: Structured Concurrency (Incubator)](https://openjdk.org/jeps/428)
+
+https://blog.krecan.net/2013/12/25/completablefutures-why-to-use-async-methods/
+
+https://x.com/jponge/status/1450120749621071882
 
 
 ## || Add Postgres database connection
@@ -58,6 +67,8 @@ quarkus.datasource.jdbc.enable-metrics=true
 https://quarkus.io/guides/hibernate-reactive-panache
 
 https://quarkus.io/guides/reactive-sql-clients
+
+https://smallrye.io/smallrye-mutiny/2.5.1/reference/uni-and-multi/
 
 ### Go
 
