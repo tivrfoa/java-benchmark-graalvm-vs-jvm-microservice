@@ -18,7 +18,7 @@ type Client struct {
 	Age              uint32  `json:"age"`
 	GuardianID       uint32  `json:"guardianID"`
 	MonthSalary      float64 `json:"monthSalary"`
-	Address          Address `json:"address"`
+	Address          *Address `json:"address"`
 	Phones           []Phone `json:"phones"`
 	FavoriteDirector string
 }

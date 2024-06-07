@@ -99,7 +99,7 @@ func getServiceHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error fetching address:", err)
 			return
 		}
-		client.Address = *address
+		client.Address = address
 		loanOptions = calculateLoanOptions(client)
 	} else {
 		fmt.Println("BUG: this should be unreachable")
@@ -108,7 +108,7 @@ func getServiceHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error fetching address:", err)
 			return
 		}
-		client.Address = *address
+		client.Address = address
 	}
 
 	response := NewResponseLoanOptions(client, loanOptions)
