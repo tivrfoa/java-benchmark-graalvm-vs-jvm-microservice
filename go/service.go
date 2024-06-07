@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -215,7 +216,8 @@ func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
 
 	clientFavoriteDirectorMovies := getClientFavoriteDirectorMovies(client, movies)
 
-	jsonResponse, err := json.Marshal(clientFavoriteDirectorMovies)
+	// jsonResponse, err := json.Marshal(clientFavoriteDirectorMovies)
+	jsonResponse, err := JSONMarshal(clientFavoriteDirectorMovies)
 	if err != nil {
 		fmt.Println("Error marshalling client data:", err)
 		return
@@ -223,6 +225,14 @@ func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonResponse)
+}
+
+func JSONMarshal(t interface{}) ([]byte, error) {
+    buffer := &bytes.Buffer{}
+    encoder := json.NewEncoder(buffer)
+    encoder.SetEscapeHTML(false)
+    err := encoder.Encode(t)
+    return buffer.Bytes(), err
 }
 
 func main() {
