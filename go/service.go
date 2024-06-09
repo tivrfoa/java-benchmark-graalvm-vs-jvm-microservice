@@ -227,6 +227,7 @@ func dbHandler(w http.ResponseWriter, r *http.Request, pool *pgxpool.Pool) {
 	w.Write(jsonResponse)
 }
 
+// https://stackoverflow.com/questions/28595664/how-to-stop-json-marshal-from-escaping-and
 func JSONMarshal(t interface{}) ([]byte, error) {
     buffer := &bytes.Buffer{}
     encoder := json.NewEncoder(buffer)
