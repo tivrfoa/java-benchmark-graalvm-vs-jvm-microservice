@@ -47,16 +47,9 @@ public class LoanOptionsVerticle extends AbstractVerticle {
 		Router router = Router.router(vertx);
 		router.get("/hello").handler(this::getServiceHandler);
 		router.get("/db").handler(this::handleDB);
-		webClient = WebClient.create(vertx);
 
-		httpServer = vertx.createHttpServer()
-				.requestHandler(router);
-		// .listen(8081)
-		// .onSuccess(server -> {
-		// startPromise.complete();
-		// System.out.println("HTTP server started on port " + server.actualPort());
-		// })
-		// .onFailure(err -> err.printStackTrace());
+		webClient = WebClient.create(vertx);
+		httpServer = vertx.createHttpServer().requestHandler(router);
 
 		// https://github.com/TechEmpower/FrameworkBenchmarks/blob/master/frameworks/Java/vertx/src/main/java/vertx/App.java#L100
 		JsonObject config = config();
@@ -68,17 +61,17 @@ public class LoanOptionsVerticle extends AbstractVerticle {
 		options.setPassword(config.getString("password", "123"));
 		options.setCachePreparedStatements(true);
 		options.setPipeliningLimit(100_000);
-		Future<PgConnection> futurePgConnection = PgConnection.connect(vertx, options);
-		Future<PreparedStatement> futurePreparedStatement = futurePgConnection.flatMap(conn -> {
-			Future<PreparedStatement> f1 = conn.prepare(SELECT_WORLD)
-					.andThen(onSuccess(ps -> SELECT_WORLD_QUERY = ps.query()));
-			return f1;
-		});
-		futurePreparedStatement.transform(ar -> {
-			return httpServer.listen(8081);
-		})
-				.<Void>mapEmpty()
-				.onComplete(startPromise);
+		
+		PgConnection.connect(vertx, options)
+			.flatMap(conn -> {
+				return conn.prepare(SELECT_WORLD)
+						.andThen(onSuccess(ps -> SELECT_WORLD_QUERY = ps.query()));
+			})
+			.transform(ar -> {
+				return httpServer.listen(8081);
+			})
+			.<Void>mapEmpty()
+			.onComplete(startPromise);
 	}
 
 	private static <T> Handler<AsyncResult<T>> onSuccess(Handler<T> handler) {

@@ -436,6 +436,45 @@ Requests/sec:   2000.44
 Transfer/sec:      1.91MB
 ```
 
+# DB
+
+## Quarkus
+
+
+
+## Vertx
+
+Max RAM: 231 MB
+
+Very low (< 8%) CPU usage.
+
+After first run:
+
+```txt
+make wrkDB 
+wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db
+Running 20s test @ http://localhost:8081/db
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.74ms    1.02ms   8.10ms   73.31%
+    Req/Sec   210.36    213.77     1.11k    81.48%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.44ms
+ 75.000%    2.20ms
+ 90.000%    3.31ms
+ 99.000%    4.76ms
+ 99.900%    5.48ms
+ 99.990%    6.54ms
+ 99.999%    8.10ms
+100.000%    8.10ms
+
+#[Mean    =        1.738, StdDeviation   =        1.016]
+#[Max     =        8.096, Total count    =        19900]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  39780 requests in 20.00s, 12.79MB read
+Requests/sec:   1988.79
+Transfer/sec:    654.70KB
+```
 
 # benchmarksgame Go x Java
 
