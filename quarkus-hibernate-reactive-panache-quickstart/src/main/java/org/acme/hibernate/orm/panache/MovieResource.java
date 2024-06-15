@@ -3,7 +3,6 @@ package org.acme.hibernate.orm.panache;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 
 import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
@@ -26,14 +25,17 @@ public class MovieResource {
     }
 
     @GET
-    public CompletionStage<ClientFavoriteDirectorMovies> getClientFavoriteDirectorMovies() {
+    public Uni<ClientFavoriteDirectorMovies> getClientFavoriteDirectorMovies() {
         var client = Client.getClient();
-        return Movie.findAll()
-            .list()
-            .subscribeAsCompletionStage()
-            .thenApplyAsync(movies -> {
+        return Uni.combine()
+            .all()
+            .unis(Movie.findAll().list())
+            .with(movies -> {
                 HashMap<String, List<Movie>> moviesByDirector = new HashMap<>();
-                for (var m : movies) {
+                System.out.println(movies);
+                @SuppressWarnings("unchecked")
+                var movieList = (List<Movie>) movies.get(0);
+                for (var m : movieList) {
                     var movie = (Movie) m;
                     List<Movie> l = moviesByDirector.computeIfAbsent(movie.getDirector(), d -> new ArrayList<>());
                     l.add(movie);
