@@ -11,7 +11,7 @@ goService:
 	./go/bin/acme
 
 javaQuarkus:
-	java -jar code-with-quarkus/target/quarkus-app/quarkus-run.jar
+	java -jar quarkus/target/quarkus-app/quarkus-run.jar
 
 # TODO javaNativeQuarkus:
 
