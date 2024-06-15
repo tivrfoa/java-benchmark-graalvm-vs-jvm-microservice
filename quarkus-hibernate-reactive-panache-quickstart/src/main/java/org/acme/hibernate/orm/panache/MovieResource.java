@@ -32,7 +32,6 @@ public class MovieResource {
             .unis(Movie.findAll().list())
             .with(movies -> {
                 HashMap<String, List<Movie>> moviesByDirector = new HashMap<>();
-                System.out.println(movies);
                 @SuppressWarnings("unchecked")
                 var movieList = (List<Movie>) movies.get(0);
                 for (var m : movieList) {

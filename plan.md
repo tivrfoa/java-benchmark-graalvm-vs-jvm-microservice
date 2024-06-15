@@ -4,6 +4,10 @@
 	- || Compare database endpoint
 	- || Comparing running inside Docker with restricted resources
 
+## |x| Quarkus Hibernate Reactive with Panache
+
+  - It consumes much more memory
+  - Takes much longer to get hot
 
 ## |x| Add Quarkus Reactive
 
