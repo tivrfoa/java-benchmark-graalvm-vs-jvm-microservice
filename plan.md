@@ -93,3 +93,14 @@ https://medium.com/@neelkanthsingh.jr/understanding-database-connection-pools-an
 
 
 ## || Add Rust
+
+
+## || GraalVM Native Image for Vertx
+
+I was not able to do it. Maybe someone can send a PR. =)
+
+https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+
+https://github.com/cch0/vertx-graal-native-image
+
+https://blog.valensas.com/our-adventures-with-graalvm-the-good-the-bad-and-the-ugly-cbf6d6e7f0d9

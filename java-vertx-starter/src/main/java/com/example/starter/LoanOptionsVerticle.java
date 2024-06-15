@@ -3,6 +3,7 @@ package com.example.starter;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -31,11 +32,11 @@ public class LoanOptionsVerticle extends AbstractVerticle {
       new Client("J", 27, 10000),
   };
 
-  // public static void main(String[] args) {
-  //   Vertx vertx = Vertx.vertx();
-  //   vertx.deployVerticle(LoanOptionsVerticle.class.getName());
-  // }
-  
+  public static void main(String[] args) {
+    Vertx vertx = Vertx.vertx();
+    vertx.deployVerticle(LoanOptionsVerticle.class.getName());
+  }
+
   private WebClient webClient;
 
   @Override
