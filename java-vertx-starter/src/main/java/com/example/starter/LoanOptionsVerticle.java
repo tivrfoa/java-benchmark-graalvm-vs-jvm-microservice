@@ -13,6 +13,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -25,11 +26,11 @@ import io.vertx.sqlclient.PreparedStatement;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowIterator;
 import io.vertx.sqlclient.RowSet;
-import io.vertx.sqlclient.impl.SqlClientInternal;
 
 public class LoanOptionsVerticle extends AbstractVerticle {
 
 	private static final List<LoanOption> NO_LOAN_OPTIONS_AVAILABLE = List.of();
+	private static final String SELECT_WORLD = "select title, year, cost, director from movie";
 
 	public static void main(String[] args) {
 		Vertx vertx = Vertx.vertx();
@@ -38,11 +39,8 @@ public class LoanOptionsVerticle extends AbstractVerticle {
 
 	private WebClient webClient;
 
-	private static final String SELECT_WORLD = "select title, year, cost, director from movie";
 	private PreparedQuery<RowSet<Row>> SELECT_WORLD_QUERY;
-	private Throwable databaseErr;
 	private HttpServer httpServer;
-	private SqlClientInternal client;
 
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {
@@ -70,15 +68,13 @@ public class LoanOptionsVerticle extends AbstractVerticle {
 		options.setPassword(config.getString("password", "123"));
 		options.setCachePreparedStatements(true);
 		options.setPipeliningLimit(100_000);
-		var t1 = PgConnection.connect(vertx, options);
-		var t2 = t1.flatMap(conn -> {
-			client = (SqlClientInternal) conn;
+		Future<PgConnection> futurePgConnection = PgConnection.connect(vertx, options);
+		Future<PreparedStatement> futurePreparedStatement = futurePgConnection.flatMap(conn -> {
 			Future<PreparedStatement> f1 = conn.prepare(SELECT_WORLD)
 					.andThen(onSuccess(ps -> SELECT_WORLD_QUERY = ps.query()));
 			return f1;
 		});
-		t2.transform(ar -> {
-			databaseErr = ar.cause();
+		futurePreparedStatement.transform(ar -> {
 			return httpServer.listen(8081);
 		})
 				.<Void>mapEmpty()
@@ -121,11 +117,9 @@ public class LoanOptionsVerticle extends AbstractVerticle {
 				}
 				var clientFavoriteDirectorMovies = new ClientFavoriteDirectorMovies(client,
 						moviesByDirector.get(client.getFavoriteDirector()));
-				JsonObject response = new JsonObject()
-						.put("clientFavoriteDirectorMovies", JsonObject.mapFrom(clientFavoriteDirectorMovies));
 				resp
 						.putHeader("Content-Type", "application/json")
-						.end(response.encode());
+						.end(Json.encode(clientFavoriteDirectorMovies));
 			} else {
 				throw new RuntimeException(res.cause());
 			}
