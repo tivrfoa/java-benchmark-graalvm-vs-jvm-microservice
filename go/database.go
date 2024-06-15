@@ -11,7 +11,7 @@ import (
 
 // https://medium.com/@neelkanthsingh.jr/understanding-database-connection-pools-and-the-pgx-library-in-go-3087f3c5a0c
 func config() *pgxpool.Config {
-	const defaultMaxConns = int32(25)
+	const defaultMaxConns = int32(30)
 	const defaultMinConns = int32(5)
 	const defaultMaxConnLifetime = time.Hour
 	const defaultMaxConnIdleTime = time.Minute * 30
