@@ -440,20 +440,87 @@ Transfer/sec:      1.91MB
 
 ## Quarkus
 
+max 30 db connections.
+
+After first run:
+
+CPU usage < 13,1%
+
+Max RAM: 276 MB
+
+```txt
+$ make wrkDB 
+wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.55ms  721.84us   5.76ms   70.92%
+    Req/Sec   209.41    165.92   666.00     60.30%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.41ms
+ 75.000%    1.91ms
+ 90.000%    2.57ms
+ 99.000%    3.72ms
+ 99.900%    4.78ms
+ 99.990%    5.63ms
+ 99.999%    5.77ms
+100.000%    5.77ms
+
+#[Mean    =        1.545, StdDeviation   =        0.722]
+#[Max     =        5.764, Total count    =        19900]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  39971 requests in 20.00s, 13.38MB read
+Requests/sec:   1998.41
+Transfer/sec:    685.20KB
+```
+
+## Quarkus Hibernate Reactive Panache
+
+After first run:
+
+CPU usage after it became hot: < 13%
+
+Max RAM: 380 MB
+
+```txt
+$ make wrkDB 
+wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     2.65ms    1.62ms  17.81ms   76.14%
+    Req/Sec   209.92    197.91   800.00     53.03%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    2.06ms
+ 75.000%    3.54ms
+ 90.000%    4.94ms
+ 99.000%    7.71ms
+ 99.900%   10.72ms
+ 99.990%   14.75ms
+ 99.999%   17.82ms
+100.000%   17.82ms
+
+#[Mean    =        2.647, StdDeviation   =        1.622]
+#[Max     =       17.808, Total count    =        19900]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  39972 requests in 20.00s, 13.38MB read
+Requests/sec:   1998.35
+Transfer/sec:    685.18KB
+```
 
 
 ## Vertx
+
+It uses just 1 db connection.
+I guess this is the main reason for the lower memory usage.
+
+After first run:
 
 Max RAM: 231 MB
 
 Very low (< 8%) CPU usage.
 
-After first run:
-
 ```txt
-make wrkDB 
+$ make wrkDB 
 wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db
-Running 20s test @ http://localhost:8081/db
   Thread Stats   Avg      Stdev     Max   +/- Stdev
     Latency     1.74ms    1.02ms   8.10ms   73.31%
     Req/Sec   210.36    213.77     1.11k    81.48%
@@ -474,6 +541,39 @@ Running 20s test @ http://localhost:8081/db
   39780 requests in 20.00s, 12.79MB read
 Requests/sec:   1988.79
 Transfer/sec:    654.70KB
+```
+
+## Go
+
+It's using only 6 db connections.
+
+CPU usage < 13%
+
+Max RAM: 22 MB
+
+```
+$ make wrkDB 
+wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.53ms  703.65us   6.56ms   73.04%
+    Req/Sec   210.88    227.09     1.11k    80.27%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.41ms
+ 75.000%    1.86ms
+ 90.000%    2.43ms
+ 99.000%    3.90ms
+ 99.900%    5.30ms
+ 99.990%    6.37ms
+ 99.999%    6.56ms
+100.000%    6.56ms
+
+#[Mean    =        1.526, StdDeviation   =        0.704]
+#[Max     =        6.560, Total count    =        19900]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  39780 requests in 20.00s, 14.06MB read
+Requests/sec:   1988.75
+Transfer/sec:    719.95KB
 ```
 
 # benchmarksgame Go x Java
