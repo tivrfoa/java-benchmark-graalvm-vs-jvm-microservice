@@ -84,7 +84,7 @@ AMD® Radeon vega 8 graphics
 
 You can check more results for [here](perf-stat-java-native-vs-jvm.md).
 
-Unscientifically checking max cpu % and rss just looking at System Monitor ...
+Unscientifically checking max cpu % and rss by just looking at System Monitor ...
 
 ### make wrkJSON
 
@@ -109,3 +109,13 @@ Unscientifically checking max cpu % and rss just looking at System Monitor ...
 
 `wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db`
 
+|| command | startup | max cpu% | max rss (MB) | Req/sec | Avg | Max |
+|---|---|---|---|---|---|---|---|
+|JVM First Run | make javaQuarkus| 1.348s | 78.22% | 269 | 1989.96 | 1.63ms | 7.29ms |
+|JVM Second Run | - | - | 17% | 287 | 2000.15 | 1.64ms | 9.67ms |
+|JVM Third Run | - | - | 14% | 270 | 2000.17 | 1.48ms | 9.73ms |
+|GraalVM| make graalvm | 0.019s| 15% | 120 | 2000.25 | 1.78ms | 8.03ms |
+|Go| make goService | 0.016s | 15.58% | 21.9 | 2000.28 | 1.51ms | 5.61ms |
+|Vertx First Run| make vertx | ? | 24.08% | 234 | 2000.28 | 1.29ms | 8.99ms |
+|Vertx Second Run| - | - | 8.06% | 237 | 2000.40 | 1.58ms | 8.67ms |
+|Vertx Third Run| - | - | 8% | 230 | 2000.40 | 1.36ms | 4.89ms |
