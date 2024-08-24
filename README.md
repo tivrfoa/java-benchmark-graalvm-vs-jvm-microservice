@@ -28,5 +28,26 @@ Two things that I'm really impressed about Go:
   - Fast compilation time;
   - Low memory usage (even with a GC).
 
+## What does this application do?
+
+The app consists of only two endpoints:
+  - /hello
+  - /db
+
+### /hello
+
+It returns a JSON with client's phones, address and loan options.<br>
+It contains an unreachable branch: all clients are at least 18 years old.
+The goal here is to check if Java JIT can take advantage of that.
+
+  - getClient: returns one client from 10 clients;
+  - getPhones: calls a REST API to get client's phones;
+  - getAddress: calls a REST API to get client's address;
+  - calculateLoanOptions: returns loan options based on customer's salary.
+
+### /db
+
+
+
 ## Running the Benchmark
 
