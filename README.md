@@ -98,3 +98,14 @@ Unscientifically checking max cpu % and rss just looking at System Monitor ...
 |JVM Fourth Run | - | - | 31% | 315 | 2000.28 | 1.81ms | 10.64ms |
 |GraalVM| make graalvm | 0.025s| 26.67% | 111 | 2000.15 | 2.03ms | 20.93ms |
 |Go| make goService | 0.016s | 21.3% | 19.1 | 2000.21 | 2.05ms | 15.77ms |
+|Vertx First Run| make vertx | ? | 32% | 225 | 2000.32 | 211.68ms | 1.45s |
+|Vertx Second Run| - | - | 21% | 217 | 2000.29 | 1.59ms | 6.29ms |
+|Vertx Third Run¹| - | - | 8.64% | 217 | 2000.09 | 3.89ms | 14.86ms |
+|Vertx Fourth Run| - | - | 11.6% | 203 | 2000.28 | 1.37ms | 5.05ms |
+
+¹ I don't know why it ran slower. Maybe GC
+
+### make wrkDB
+
+`wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db`
+

@@ -16,7 +16,8 @@ javaQuarkus:
 graalvm:
 	./bin/code-with-quarkus-1.0.0-SNAPSHOT-runner
 
-# TODO: javaVertx
+vertx:
+	java -jar java-vertx-starter/target/starter-1.0.0-SNAPSHOT-fat.jar
 
 
 k6:
