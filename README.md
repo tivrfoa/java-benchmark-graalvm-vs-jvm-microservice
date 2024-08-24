@@ -51,3 +51,13 @@ The goal here is to check if Java JIT can take advantage of that.
 
 ## Running the Benchmark
 
+- Create Java jar files: go to each Java program and run: `mvn clean package`
+- Build client api: `make buildApi`
+- Build Go app: `make buildGo`
+- Start Postgress database: `docker-compose up`
+- Start client api: `make api`
+- Run app (test one at a time, they use the same port):
+  - Go: `make goService`
+  - Java: `make javaQuarkus`
+
+In the [Makefile](Makefile) there are options to use `k6`, `vegeta` and `wrk`.
