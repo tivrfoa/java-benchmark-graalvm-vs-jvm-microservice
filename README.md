@@ -18,7 +18,7 @@ cheap nowadays (???), but if you have thousands of microservices,
 the cost can become significant.
 
 Of course, that is not the only cost you should consider. Probably
-Go and Rust developers are more expensive that Java ones,
+Go and Rust developers are more expensive than Java ones,
 which could make the memory cost irrelevant.
 
 They say every benchmark is flawed =), so please open an issue or PR
