@@ -90,11 +90,11 @@ Unscientifically checking max cpu % and rss just looking at System Monitor ...
 
 `wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/hello`
 
-|| command | startup | max cpu% | max rss | Requests/sec | Avg | Max |
+|| command | startup | max cpu% | max rss | Req/sec | Avg | Max |
 |---|---|---|---|---|---|---|---|
 |JVM First Run | make javaQuarkus| 1.369s | 86.65% | 330 MB | 1971.75 | 1.32s | 2.55s |
 |JVM Second Run | - | - | 74% | 333 MB | 1990.03 | 3.29ms | 23.70ms |
 |JVM Third Run | - | - | 43% | 315 MB | 1989.72 | 2.56ms | 17.09ms |
 |JVM Fourth Run | - | - | 31% | 315 MB | 2000.28 | 1.81ms | 10.64ms |
 |GraalVM| make graalvm | 0.025s| 26.67% | 111 MB | 2000.15 | 2.03ms | 20.93ms |
-|Go| make goService | 0.015s | 21.3% | 19.1 MB | 2000.21 | 2.05ms | 15.77ms |
+|Go| make goService | 0.016s | 21.3% | 19.1 MB | 2000.21 | 2.05ms | 15.77ms |
