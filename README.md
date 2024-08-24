@@ -1,4 +1,8 @@
-The goal here is to compare Java vs Go: cpu, rss and performance.
+The initial goal of this repo was to compare GraalVM vs JVM for
+a simple microservice, regarding: startup time, cpu, rss and performance.
+
+I then also added Go to the mix.
+
 
   - [Why do that?](#why-do-that)
   - [Why compare against Go?](#why-compare-against-go)
@@ -13,7 +17,7 @@ cheap nowadays (???), but if you have thousands of microservices,
 the cost can become significant.
 
 Of course, that is not the only cost you should consider. Probably
-Go and Rust developers are more expensive that Java developers,
+Go and Rust developers are more expensive that Java ones,
 which could make the memory cost irrelevant.
 
 They say every benchmark is flawed =), so please open an issue or PR
@@ -47,6 +51,8 @@ The goal here is to check if Java JIT can take advantage of that.
 
 ### /db
 
+- queryMovies: query movies from a Postgres table;
+- getClientFavoriteDirectorMovies: get all movies directed by client's favorite director.
 
 
 ## Running the Benchmark
@@ -61,3 +67,24 @@ The goal here is to check if Java JIT can take advantage of that.
   - Java: `make javaQuarkus`
 
 In the [Makefile](Makefile) there are options to use `k6`, `vegeta` and `wrk`.
+
+
+## Results
+
+```
+Ubuntu 22.04.4 LTS
+6.8.0-40-generic #40~22.04.3-Ubuntu SMP PREEMPT_DYNAMIC Tue Jul 30 17:30:19 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+
+Lenovo IdeaPad S145-15API
+8,0 GiB
+AMD® Ryzen 5 3500u with radeon vega mobile gfx × 8
+AMD® Radeon vega 8 graphics
+```
+
+You can check more results for [here](perf-stat-java-native-vs-jvm.md).
+
+|| startup | cpu | rss | throughput |
+|---|---|---|---|---|
+|JVM|      |     |     |           |
+|GraalVM|      |     |     |           |
+|Go|      |     |     |           |
