@@ -1,0 +1,4 @@
+FROM ibm-semeru-runtimes:open-21.0.3_9-jre
+RUN mkdir /opt/app
+COPY target/starter-1.0.0-SNAPSHOT-fat.jar /opt/app/app.jar
+CMD ["java", "-XX:+PrintCommandLineFlags", "-jar", "/opt/app/app.jar"]

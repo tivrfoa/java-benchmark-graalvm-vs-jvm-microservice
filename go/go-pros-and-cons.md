@@ -22,7 +22,7 @@
 
 - Return error as tuple (?)
 
-	- Rust `Result` is much better.
+	- Rust `Result` seems better.
 
 ## Others
 

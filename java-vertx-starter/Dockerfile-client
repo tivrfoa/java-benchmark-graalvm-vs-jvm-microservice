@@ -1,0 +1,11 @@
+# FROM maven:3.9.0-eclipse-temurin-17 as maven
+FROM maven:3.9.7-eclipse-temurin-21 as maven
+WORKDIR /vertx
+COPY src src
+COPY pom.xml pom.xml
+RUN mvn package -q
+
+EXPOSE 8081
+
+# CMD ["java", "-Xms2G", "-Xmx2G", "-server", "-XX:+UseNUMA", "-XX:+UseParallelGC", "-Dvertx.disableMetrics=true", "-Dvertx.disableH2c=true", "-Dvertx.disableWebsockets=true", "-Dvertx.flashPolicyHandler=false", "-Dvertx.threadChecks=false", "-Dvertx.disableContextTimings=true", "-Dvertx.disableTCCL=true", "-Dvertx.disableHttpHeadersValidation=true", "-Dio.netty.buffer.checkBounds=false", "-Dio.netty.buffer.checkAccessible=false", "-jar", "target/starter-1.0.0-SNAPSHOT-fat.jar"]
+CMD ["java", "-XX:+PrintCommandLineFlags", "-Xmx40m", "-client", "-XX:+UseNUMA", "-XX:+UseSerialGC", "-Dvertx.disableMetrics=true", "-Dvertx.disableH2c=true", "-Dvertx.disableWebsockets=true", "-Dvertx.flashPolicyHandler=false", "-Dvertx.threadChecks=false", "-Dvertx.disableContextTimings=true", "-Dvertx.disableTCCL=true", "-Dvertx.disableHttpHeadersValidation=true", "-Dio.netty.buffer.checkBounds=false", "-Dio.netty.buffer.checkAccessible=false", "-jar", "target/starter-1.0.0-SNAPSHOT-fat.jar"]

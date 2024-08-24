@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.jvm -t quarkus/getting-started-reactive-crud-jvm .
+# docker build -f src/main/docker/Dockerfile.jvm -t quarkus/code-with-quarkus-jvm .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/getting-started-reactive-crud-jvm
+# docker run -i --rm -p 8080:8080 quarkus/code-with-quarkus-jvm
 #
 # If you want to include the debug port into your docker image
 # you will have to expose the debug port (default 5005 being the default) like this :  EXPOSE 8080 5005.
@@ -20,7 +20,7 @@
 #
 # Then run the container using :
 #
-# docker run -i --rm -p 8080:8080 quarkus/getting-started-reactive-crud-jvm
+# docker run -i --rm -p 8080:8080 quarkus/code-with-quarkus-jvm
 #
 # This image uses the `run-java.sh` script to run the application.
 # This scripts computes the command line to execute your Java application, and
@@ -90,8 +90,10 @@ COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
 
 EXPOSE 8081
 USER 185
-ENV JAVA_OPTS_APPEND="-XX:+PrintCommandLineFlags -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_OPTS_APPEND="-XX:+PrintCommandLineFlags -client -XX:+UseSerialGC -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:AdaptiveSizePolicyWeight=90 -XX:+ExitOnOutOfMemoryError -XX:GCTimeRatio=4 -XX:InitialHeapSize=6815736 -XX:MaxHeapFreeRatio=20 -XX:MaxHeapSize=26214400 -XX:MaxRAM=52428800 -XX:MaxRAMPercentage=80.000000 -XX:MinHeapFreeRatio=10 -XX:MinHeapSize=6815736 -XX:ReservedCodeCacheSize=251658240 -XX:+SegmentedCodeCache -XX:+UseCompressedOops"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
-ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
+WORKDIR /deployments/
+
+ENTRYPOINT [ "exec -a qapp java -XX:+PrintCommandLineFlags -client -XX:+UseSerialGC -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -jar /deployments/quarkus-run.jar" ]
 

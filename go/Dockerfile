@@ -1,3 +1,4 @@
+# https://hub.docker.com/_/golang
 FROM golang:1.22
 
 WORKDIR /usr/src/app
