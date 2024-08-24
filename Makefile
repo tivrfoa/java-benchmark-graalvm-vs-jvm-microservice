@@ -13,7 +13,8 @@ goService:
 javaQuarkus:
 	java -jar quarkus/target/quarkus-app/quarkus-run.jar
 
-# TODO javaNativeQuarkus:
+graalvm:
+	./bin/code-with-quarkus-1.0.0-SNAPSHOT-runner
 
 # TODO: javaVertx
 

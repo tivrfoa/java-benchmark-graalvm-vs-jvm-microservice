@@ -12,6 +12,7 @@ import (
     "os"
 	"net/http"
 	"sync/atomic"
+	"time"
 )
 
 func NewClient(name string, age uint32, monthSalary float64, favoriteDirector string) Client {
@@ -237,6 +238,7 @@ func JSONMarshal(t interface{}) ([]byte, error) {
 }
 
 func main() {
+	var start = time.Now()
 	pool := CreateConnectionPool()
 
 	http.HandleFunc("/hello", getServiceHandler)
@@ -245,7 +247,7 @@ func main() {
 	})
 
 	port := ":8081"
-	fmt.Printf("Server listening on port %s\n", port)
+	fmt.Printf("Server listening on port %s.\nApproximately startup: %v\n", port, time.Since(start))
 	err := http.ListenAndServe(port, nil)
 	if err != nil {
 		panic(err)
