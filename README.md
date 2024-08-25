@@ -105,6 +105,15 @@ Unscientifically checking max cpu % and rss by just looking at System Monitor ..
 
 ¹ I don't know why it ran slower. Maybe GC
 
+Latency Distribution - Best of 5 runs:
+
+||50%|75%|90%|99%|99.9%|99.99%|99.999%|
+|---|---|---|---|---|---|---|---|
+|JVM Vertx|1.45ms|2.00ms|3.44ms|5.97ms|7.99ms|9.45ms|9.80ms|9.80ms|
+|JVM Quarkus|1.84ms|2.18ms|2.55ms|3.69ms|5.49ms|6.23ms|6.74ms|6.74ms|
+|GraalVM Quarkus|1.96ms|2.27ms|2.65ms|3.83ms|13.53ms|16.20ms|17.06ms|
+|Go|1.53ms|1.92ms|2.50ms|4.17ms|5.11ms|5.57ms|7.94ms|7.94ms|
+
 ### make wrkDB
 
 `wrk -L -t 10 -d 20 -c 100 -R 2000 http://localhost:8081/db`
